@@ -1,0 +1,11 @@
+{
+  "name": "sleuth-skill",
+  "version": "0.1.0",
+  "description": "Sleuth as an OpenAI Codex Agent Skill — drives your app as dev + ICP testers, returns fix-ready briefs.",
+  "type": "module",
+  "private": true,
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test"
+  }
+}

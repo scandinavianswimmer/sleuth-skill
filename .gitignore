@@ -1,0 +1,4 @@
+node_modules/
+.sleuth/
+*.log
+.DS_Store
