@@ -33,3 +33,14 @@ test('diff marks a resolved finding regressed if it reappears', () => {
   mem = diff(mem, 'run3', [f()]);           // came back
   assert.equal(mem.findings[0].status, 'regressed');
 });
+
+test('record does not mutate the input mem (runsSeen) across repeated runs', () => {
+  const mem0 = record({ findings: [], runs: [] }, 'run1', [f()]);
+  const snapshot = JSON.stringify(mem0);
+  const mem1 = record(mem0, 'run2', [f()]);
+  // mem0 must be untouched
+  assert.equal(JSON.stringify(mem0), snapshot);
+  assert.deepEqual(mem0.findings[0].runsSeen, ['run1']);
+  // mem1 accumulates both runs
+  assert.deepEqual(mem1.findings[0].runsSeen, ['run1', 'run2']);
+});

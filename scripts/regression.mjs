@@ -17,7 +17,7 @@ export function save(path, mem) {
 }
 
 export function record(mem, runId, findings) {
-  const next = { findings: mem.findings.map((x) => ({ ...x })), runs: [...mem.runs] };
+  const next = { findings: mem.findings.map((x) => ({ ...x, runsSeen: x.runsSeen ? [...x.runsSeen] : [] })), runs: [...mem.runs] };
   const fps = [];
   for (const f of findings) {
     const fp = fingerprint(f);
@@ -60,6 +60,10 @@ export function diff(mem, runId, currentFindings) {
 function main() {
   const [cmd, memPath, runId, findingsFile] = process.argv.slice(2);
   if (!cmd || !memPath) { process.stderr.write('usage: regression.mjs <record|plan|diff> <memPath> [runId] [findingsFile]\n'); process.exit(2); }
+  if ((cmd === 'record' || cmd === 'diff') && !runId) {
+    process.stderr.write('usage: regression.mjs ' + cmd + ' <memPath> <runId> <findingsFile>\n');
+    process.exit(2);
+  }
   const mem = load(memPath);
   if (cmd === 'plan') { process.stdout.write(JSON.stringify(plan(mem), null, 2) + '\n'); return; }
   const findings = findingsFile ? JSON.parse(readFileSync(findingsFile, 'utf8')) : [];
