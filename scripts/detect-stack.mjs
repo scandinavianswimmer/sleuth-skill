@@ -65,9 +65,9 @@ export function detectNextRoutes(root) {
 
 export function detectExpressRoutes(files) {
   const routes = [];
-  const re = /\b(?:app|router)\.(get|post|put|patch|delete)\s*\(\s*['"`]([^'"`]+)['"`]/g;
   for (const f of files) {
     let src; try { src = readFileSync(f, 'utf8'); } catch { continue; }
+    const re = /\b(?:app|router)\.(get|post|put|patch|delete)\s*\(\s*['"`]([^'"`]+)['"`]/g;
     let m;
     while ((m = re.exec(src))) routes.push({ method: m[1].toUpperCase(), path: m[2] });
   }
@@ -115,9 +115,9 @@ export function detectEnv(root, files) {
       if (m) vars.add(m[1]);
     }
   }
-  const re = /process\.env\.([A-Z0-9_]+)/g;
   for (const f of files) {
     let src; try { src = readFileSync(f, 'utf8'); } catch { continue; }
+    const re = /process\.env\.([A-Z0-9_]+)/g;
     let m;
     while ((m = re.exec(src))) vars.add(m[1]);
   }
