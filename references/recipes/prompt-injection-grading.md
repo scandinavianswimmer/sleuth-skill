@@ -116,7 +116,7 @@ Record an explicit UNVERIFIED item in the findings:
 }
 ```
 
-Surface this UNVERIFIED item in `SUMMARY.md` under a dedicated section titled **Unverified Security Tests** — it must not be silently omitted. An UNVERIFIED item is not a clean result; it is an open security question that must be closed before the app is considered safe to ship. Reference `references/briefs.md` for how to include it in the run summary.
+Surface this UNVERIFIED item in `SUMMARY.md` and `HANDOFF.md` under the canonical `## ⚠️ Unverified Capabilities` section (defined in `references/briefs.md`) — it must not be silently omitted. An UNVERIFIED item is not a clean result; it is an open security question that must be closed before the app is considered safe to ship.
 
 ---
 

@@ -47,10 +47,10 @@ Read `references/personas.md`. Create 1 developer persona + 3 ICP personas (defa
 in `.sleuth/personas/`. Validate each with `scaffold.mjs validate persona`.
 
 ### Phase 3 — Drive
-Read `references/driving.md`. Pick driving surface per `references/browser-tooling.md`. Developer pass first (exercise + push to limits), then one pass per ICP persona. Correlate failures with backend logs/source. Capture screenshots + notes to `.sleuth/runs/<run-id>/`.
+Read `references/driving.md`. Pick driving surface per `references/browser-tooling.md`. Developer pass first (exercise + push to limits), then one pass per ICP persona. Correlate failures with backend logs/source. Capture screenshots + notes to `.sleuth/runs/<run-id>/`. For AI grading/eval apps, apply `references/recipes/prompt-injection-grading.md`.
 
 ### Phase 4 — Judge + brief
-Read `references/judging.md` then `references/briefs.md`. Set each finding's `visibility`; surface UNVERIFIED capabilities. Kill false positives, write findings to `.sleuth/findings/F-*.json`, render `F-*.md` briefs + `SUMMARY.md`. Write `.sleuth/HANDOFF.md`. For AI grading/eval apps, apply `references/recipes/prompt-injection-grading.md`.
+Read `references/judging.md` then `references/briefs.md`. Set each finding's `visibility`; surface UNVERIFIED capabilities. Kill false positives, write findings to `.sleuth/findings/F-*.json`, render `F-*.md` briefs + `SUMMARY.md`. Write `.sleuth/HANDOFF.md`.
 
 ### Phase 5 — Regression memory
 Assemble findings into `_all.json` (regression store reads an array):

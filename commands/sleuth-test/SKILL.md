@@ -30,12 +30,10 @@ node scripts/scaffold.mjs validate persona .sleuth/personas/<name>.json
 ```
 
 ## Phase 2 — Drive
-Read `references/driving.md`. Pick driving surface per `references/browser-tooling.md` (surface selection + Playwright availability). Developer pass first (full exercise + push-to-limits checklist including friction hunting), then one pass per ICP persona. Correlate failures with backend logs/source. Capture screenshots + notes to `.sleuth/runs/<run-id>/`.
+Read `references/driving.md`. Pick driving surface per `references/browser-tooling.md` (surface selection + Playwright availability). Developer pass first (full exercise + push-to-limits checklist including friction hunting), then one pass per ICP persona. Correlate failures with backend logs/source. Capture screenshots + notes to `.sleuth/runs/<run-id>/`. For AI grading/eval apps, run `references/recipes/prompt-injection-grading.md` during this phase.
 
 ## Phase 3 — Judge + brief
 Read `references/judging.md` then `references/briefs.md`. Set each finding's `visibility` (user-visible vs hidden); surface UNVERIFIED capabilities. Classify each observation, kill false positives, write validated findings to `.sleuth/findings/F-*.json` and render `F-*.md` briefs + `SUMMARY.md`. Write `.sleuth/HANDOFF.md` (master artifact per `references/briefs.md`).
-
-If this is an AI grading/eval app, run `references/recipes/prompt-injection-grading.md` during the drive phase.
 
 ## Phase 4 — Regression memory
 This run's findings replace the prior set — clear stale `.sleuth/findings/F-*.json`

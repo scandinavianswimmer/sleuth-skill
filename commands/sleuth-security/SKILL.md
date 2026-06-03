@@ -25,6 +25,7 @@ node scripts/scaffold.mjs init <repo-path>
 node scripts/detect-stack.mjs <repo-path>
 ```
 Then draft + validate per `references/product-contract.md` before proceeding.
+**Locate the real running source first** — the target dir may differ from the served app; record `app.sourceNote` (see references/product-contract.md).
 
 ## Phase 1 — Security drive
 Read `references/driving.md` (security subset — pushing-to-limits checklist). Pick driving surface per `references/browser-tooling.md`. Correlate failures with backend logs/source.

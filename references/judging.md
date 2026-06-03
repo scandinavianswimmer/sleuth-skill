@@ -127,9 +127,9 @@ node scripts/scaffold.mjs validate finding .sleuth/findings/F-NNN-<slug>.json
 
 The command must print `valid`. If it prints errors, fix the JSON and re-validate before proceeding to the next finding.
 
-Required fields: `id`, `title`, `type`, `severity`, `visibility`, `repro` (array of strings), `evidence` (array of strings).
+Required fields: `id`, `title`, `type`, `severity`, `repro` (array of strings), `evidence` (array of strings).
 
-Optional but strongly recommended fields: `route`, `flow`, `persona`, `cwe` (required for all `security` findings), `suggestedFix`, `codingAgentPrompt`.
+Optional but strongly recommended fields: `visibility` (set on every finding), `route`, `flow`, `persona`, `cwe` (required for all `security` findings), `suggestedFix`, `codingAgentPrompt`.
 
 The `codingAgentPrompt` field, when present, is a self-contained prompt a coding agent can use to fix the issue without any other context. Write it as if the coding agent has never seen this session — include the route, the symptom, and the expected behavior after the fix.
 
