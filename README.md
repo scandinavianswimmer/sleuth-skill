@@ -28,14 +28,37 @@ Six phases, fully automated inside the Codex app:
 ## Install
 
 ```bash
-# Global install (available to all projects)
-git clone <repo-url> ~/.agents/skills/sleuth
+git clone https://github.com/scandinavianswimmer/sleuth-skill
+cd sleuth-skill
+./install.sh
+```
 
-# Or per-project install
-git clone <repo-url> .agents/skills/sleuth
+This installs **5 skills** into `~/.agents/skills/` (default). To install elsewhere:
+
+```bash
+./install.sh /path/to/skills-dir
 ```
 
 No build step. Node.js 20+ required for the helper scripts.
+
+To uninstall:
+```bash
+./uninstall.sh
+```
+
+---
+
+## Commands
+
+| Command | When to use |
+|---|---|
+| `$sleuth` | Master router — auto-detects phase from `.sleuth/` state and delegates to the right command. Start here when unsure. |
+| `$sleuth-scan` | Understand the app only (no driving). Builds a Product Contract + ICP summary from the repo. Use for "what is this app / who is it for". |
+| `$sleuth-test` | Full beta test: personas → drive as dev + ICP → judge findings → write briefs → record regression memory. Use for "test my app / find bugs / QA this". |
+| `$sleuth-security` | Security-focused drive: guarded routes, role escalation, IDOR, missing headers. Authorized defensive testing only. Use for "is my app secure / pentest". |
+| `$sleuth-retest` | Regression retest: re-drives prior open findings, flips fixed ones green, flags regressions. Use for "did my fix work / check the fix". |
+
+`$sleuth` auto-routes by phase — see [`references/master-plan.md`](references/master-plan.md) for the full decision table.
 
 ---
 

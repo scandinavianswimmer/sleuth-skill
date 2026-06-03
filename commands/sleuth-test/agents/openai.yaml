@@ -1,0 +1,6 @@
+interface:
+  display_name: "Sleuth Test"
+  short_description: "Full beta test: drives the app as a dev + ICP personas, writes fix-ready briefs, records regression memory."
+  brand_color: "#1f6feb"
+policy:
+  allow_implicit_invocation: true

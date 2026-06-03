@@ -1,0 +1,6 @@
+interface:
+  display_name: "Sleuth Security"
+  short_description: "Security-focused drive: auth, IDOR, role escalation, missing headers. Authorized defensive testing of your own app."
+  brand_color: "#1f6feb"
+policy:
+  allow_implicit_invocation: true

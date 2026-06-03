@@ -1,0 +1,6 @@
+interface:
+  display_name: "Sleuth Retest"
+  short_description: "Regression retest: re-drives prior open findings, flips fixed ones green, flags new regressions."
+  brand_color: "#1f6feb"
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Sleuth Scan"
+  short_description: "Reads the repo and builds a Product Contract + ICP summary. No browser required."
+  brand_color: "#1f6feb"
+policy:
+  allow_implicit_invocation: true
