@@ -19,7 +19,20 @@ A single observation maps to exactly one type. If an observation is both a bug a
 
 ---
 
-## Step 2 — Assign Severity
+## Step 2 — Classify Visibility
+
+Every finding must also have a `visibility` field set to one of two values:
+
+| Value | Meaning |
+|---|---|
+| `user-visible` | The persona is blocked or sees a broken or incorrect state in the UI — the problem is directly observable without opening devtools. |
+| `hidden` | The problem appears only in the console, network panel, or server logs (e.g., a background 403 on a secondary request) while the UI continues to work and the persona can complete their task. |
+
+Set this field on the finding JSON alongside `type` and `severity`.
+
+---
+
+## Step 3 — Assign Severity
 
 Use the following rubric. Apply it to the worst-case realistic impact, not the happy-path impact.
 
@@ -33,9 +46,18 @@ Use the following rubric. Apply it to the worst-case realistic impact, not the h
 
 When in doubt between two adjacent levels, consider: would a reasonable product manager block a release on this? If yes, go higher.
 
+### Severity calibration with visibility
+
+Visibility modifies severity in these specific ways — apply these rules after the base rubric above:
+
+- A `user-visible` failure of a CRITICAL capability (per the Product Contract's `capabilities` array) → `high` or `critical`. Do not downgrade based on frequency.
+- A `hidden` issue with **no** user-facing, data, or security impact → cap at `low` or `medium`; record it but do not over-escalate. These are often noisy background errors that a real user never notices.
+- **EXCEPTION — hidden issues with security or data risk stay elevated:** A `hidden` issue that implies an auth bypass, data leak, or cross-tenant access is `high` or `critical` regardless of visibility. Visibility lowers severity only for benign hidden noise, never for security-relevant issues.
+- **Noisy-but-non-functional vs. functional break:** Explicitly distinguish these two cases. Example: if all reads return 200 and only a redundant or vestigial write call returns 403 while the app continues to work normally, that is "noisy but non-functional" — classify as `low` or `medium` with `visibility: "hidden"` and note in the brief that the real fix may be removing the dead call rather than patching a deep bug. Do not escalate this to `high` or `critical`.
+
 ---
 
-## Step 3 — CWE Guidance for Security Findings
+## Step 4 — CWE Guidance for Security Findings
 
 Security findings must include a `cwe` field. Use the following mappings as your starting point:
 
@@ -49,7 +71,7 @@ If the finding maps to a more specific CWE not listed above, use it. These are d
 
 ---
 
-## Step 4 — False-Positive Gate (REQUIRED)
+## Step 5 — False-Positive Gate (REQUIRED)
 
 Before committing any finding, you must re-drive the exact reproduction steps one more time from scratch. This is not optional.
 
@@ -65,7 +87,29 @@ If the issue does not reproduce on the second attempt, discard the observation. 
 
 ---
 
-## Step 5 — Write the Finding
+## Step 6 — Symptom vs. Root Cause
+
+Classify a finding by the **observed symptom** (what the browser/app actually did wrong). Then attempt root cause via backend correlation: read dev-server output, server logs, or source code (see `references/driving.md` for how to inspect backend output during a run).
+
+- If you can trace the symptom to a specific code path or configuration gap, state the root cause in the finding brief.
+- If the backend is not inspectable (no logs accessible, no source access), the brief's **Root cause / limitations** line must say: "Symptom only — needs backend access." Do NOT assert a code defect when a config/env cause (missing env key, undeployed function, rate limit, external service outage) is equally likely.
+
+---
+
+## Step 7 — UNVERIFIED Capabilities
+
+If a finding **blocks the testing** of a critical capability (from the Product Contract's `capabilities` array) or a `forbidden` invariant — for example, a grading endpoint returning 503 prevents you from testing prompt-injection resistance — then that capability is **UNVERIFIED** for this run.
+
+Record it explicitly:
+
+1. Note the UNVERIFIED capability in the finding's brief under a "⚠️ Unverified" callout.
+2. Surface it in `SUMMARY.md` and `HANDOFF.md` (see `references/briefs.md`).
+
+An UNVERIFIED capability is **not a pass**. Do not record it as `expected` and do not omit it from the summary. The next run should prioritize verifying it once the blocker is resolved.
+
+---
+
+## Step 8 — Write the Finding
 
 Write one JSON finding per confirmed issue to:
 
@@ -83,7 +127,7 @@ node scripts/scaffold.mjs validate finding .sleuth/findings/F-NNN-<slug>.json
 
 The command must print `valid`. If it prints errors, fix the JSON and re-validate before proceeding to the next finding.
 
-Required fields: `id`, `title`, `type`, `severity`, `repro` (array of strings), `evidence` (array of strings).
+Required fields: `id`, `title`, `type`, `severity`, `visibility`, `repro` (array of strings), `evidence` (array of strings).
 
 Optional but strongly recommended fields: `route`, `flow`, `persona`, `cwe` (required for all `security` findings), `suggestedFix`, `codingAgentPrompt`.
 
@@ -101,6 +145,7 @@ The following is a complete, validated finding for an unprotected `/admin` route
   "title": "Unauthenticated access to /admin route returns 200 and renders admin UI",
   "type": "security",
   "severity": "critical",
+  "visibility": "user-visible",
   "route": "/admin",
   "flow": "direct-navigation",
   "persona": "developer",
@@ -119,6 +164,6 @@ The following is a complete, validated finding for an unprotected `/admin` route
 }
 ```
 
-This finding uses `type: "security"` because it violates the authorization boundary (the `forbidden` array in the Product Contract should list unauthenticated admin access as prohibited). The severity is `critical` because an unauthenticated actor can access the full admin interface, which typically allows reading and modifying all user data. The CWE is CWE-862 because there is no server-side authorization check at all — the missing check, not an incorrect one, is the root cause. The `repro` array is written so that a developer who was not present during the session can reproduce the issue in under two minutes. The `evidence` array references the exact screenshot path under the run directory and includes the raw network observation that corroborates the screenshot.
+This finding uses `type: "security"` because it violates the authorization boundary (the `forbidden` array in the Product Contract should list unauthenticated admin access as prohibited). The severity is `critical` because an unauthenticated actor can access the full admin interface, which typically allows reading and modifying all user data. The `visibility` is `user-visible` because the persona directly observes the broken state (the admin dashboard renders in a logged-out browser) — no devtools inspection is required to notice the problem. The CWE is CWE-862 because there is no server-side authorization check at all — the missing check, not an incorrect one, is the root cause. The `repro` array is written so that a developer who was not present during the session can reproduce the issue in under two minutes. The `evidence` array references the exact screenshot path under the run directory and includes the raw network observation that corroborates the screenshot.
 
 After all confirmed findings are written as individual `F-NNN-<slug>.json` files, Phase 5 assembles them into `.sleuth/findings/_all.json` (an array) for the regression store — see SKILL.md Phase 5.

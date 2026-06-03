@@ -124,6 +124,17 @@ Schemas (`schemas/`) and references (`references/`) are the ground truth for all
 validation and reasoning. Findings, personas, and the Product Contract are all
 validated by `scripts/scaffold.mjs validate` before being written.
 
+**What the run produces:**
+- The standard `F-*.json` / `F-*.md` findings and `SUMMARY.md` in `.sleuth/findings/`
+- A master `.sleuth/HANDOFF.md` artifact (the single hand-off document, updated after retest passes)
+- `roe.json` per run for audit purposes
+
+**Additional references worth knowing:**
+- `references/recipes/` — task-specific test recipes. `prompt-injection-grading.md` covers prompt-injection testing for AI grading and eval apps.
+- `references/browser-tooling.md` — driving surface selection (OS computer-use vs. in-app browser vs. Chrome/Playwright); consult this before the drive phase.
+- `references/safety-roe.md` — now includes a Cost & side-effects section covering paid AI calls and `costlyActions`/`createsRecords` fields in `roe.json`; be cost-aware when testing AI-powered apps.
+- `references/product-contract.md` — includes "Locate the real source first" guidance: Sleuth reconciles the running app's real source when the target directory isn't the served app (records discrepancy in `app.sourceNote`).
+
 ---
 
 ## Example

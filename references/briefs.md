@@ -44,6 +44,8 @@ Then render the structured metadata as a small table or labeled list:
 - **Flow:** {{finding.flow or "—"}}
 - **Persona:** {{finding.persona or "—"}}
 - **CWE:** {{finding.cwe or "—"}} (security findings only; omit row for non-security)
+- **Visibility:** User-visible | Hidden
+- **Root cause / limitations:** {{state the determined root cause if confirmed via backend correlation (logs, source, dev-server output); otherwise write "Symptom only — needs backend access"}}
 ```
 
 #### 3. Repro Steps
@@ -147,7 +149,22 @@ A Markdown table with findings broken down by type (columns) and severity (rows)
 
 Fill in every cell. Use `0` for cells with no findings; do not leave cells empty.
 
-#### 3. Top 3 Must-Fix Items
+#### 3. ⚠️ Unverified Capabilities
+
+An H2 `## ⚠️ Unverified Capabilities` section placed **immediately after the Counts Table** — before Top 3 Must-Fix Items — so it cannot be missed.
+
+List every critical capability (from the Product Contract's `capabilities` array) or `forbidden` invariant that could NOT be tested this run, and why. Use this format per item:
+
+```
+- **<Capability name>** — UNVERIFIED: <reason; include the blocking finding ID if applicable>
+  Example: "Prompt-injection resistance — UNVERIFIED: grading call returned 503 throughout the run (F-001)."
+```
+
+If every critical capability was exercised this run, write: "All critical capabilities verified this run."
+
+This section must never be omitted, moved to the bottom, or merged into Next Steps. An unverified capability is not a pass.
+
+#### 4. Top 3 Must-Fix Items
 
 An H2 `## Top 3 Must-Fix Items` section. List the three highest-severity confirmed findings (not `expected`) ordered by severity then by sequence number. For each one, write a single line in this format:
 
@@ -157,7 +174,7 @@ An H2 `## Top 3 Must-Fix Items` section. List the three highest-severity confirm
 
 If the run has fewer than three non-`expected` findings, list however many exist. If there are no actionable findings, write "No actionable findings this run."
 
-#### 4. Regression Status
+#### 5. Regression Status
 
 An H2 `## Regression Status` section. Read `.sleuth/regression-memory.json` to produce this section. That file records the red→green history per finding ID: whether previously failing regression checks are now passing. Report it as follows:
 
@@ -171,7 +188,7 @@ An H2 `## Regression Status` section. Read `.sleuth/regression-memory.json` to p
 
 Then write one concluding sentence: "N of M tracked regressions are now green." where N is the count of findings that flipped to green and M is the total that were red going in.
 
-#### 5. Next Steps
+#### 6. Next Steps
 
 An H2 `## Next Steps` section. Three to five bullet points, each one a concrete action, not a platitude. Ground each bullet in the actual findings from this run. Examples of the right specificity: "Fix F-001 before any public launch — unauthenticated admin access is a launch blocker." or "F-003 (checkout spinner hang) affects the primary conversion flow; prioritize before the next marketing push." Do not write bullets like "address security issues" or "improve UX."
 
@@ -202,6 +219,8 @@ user's data, revoke accounts, and access any capability the admin panel exposes.
 - **Flow:** direct-navigation
 - **Persona:** developer
 - **CWE:** CWE-862 (Missing Authorization)
+- **Visibility:** User-visible
+- **Root cause / limitations:** No server-side authentication middleware is registered on the /admin route handler; the session guard exists only in the client-side router and is bypassed by direct URL navigation.
 
 ## Repro Steps
 
@@ -260,3 +279,125 @@ Instructions:
 ---
 
 The above example is canonical. Every other brief you render should match this structure — only the content changes, not the shape.
+
+---
+
+## Step 3 — Write the HANDOFF.md Artifact (Default, Every Run)
+
+In addition to per-finding briefs and `SUMMARY.md`, every run must write `.sleuth/HANDOFF.md` — a single self-contained resume/handoff document. Write it last, after all briefs and `SUMMARY.md` are complete. This is the **master handoff artifact**: someone picking up the work after this run should be able to read only this file and know exactly what was tested, what broke, and what to do next.
+
+### HANDOFF.md Sections (in order)
+
+#### 1. Run Header
+
+```
+# Sleuth HANDOFF — <run-id>
+**App:** <app name> — <app URL>
+**Environment:** <e.g., local dev / staging / production>
+**Date:** <date and time>
+```
+
+#### 2. ROE Summary
+
+Summarize the rules of engagement from `.sleuth/roe.json`: target app/URL, which actions were allowed, and which actions were explicitly flagged as costly or record-creating (e.g., "Do not submit real payment flows. Do not send emails to real addresses."). One short paragraph or a labeled list.
+
+#### 3. What the App Is
+
+One to two sentences from the Product Contract describing what the app does and who it is for. This gives a new reader instant orientation.
+
+#### 4. Personas Used
+
+List each persona that was active this run — name, role, and email pattern (e.g., `sleuth+<run-id>-admin@example.test`).
+
+#### 5. Coverage
+
+Bullet list of what was actually tested: routes navigated, flows exercised, security probes attempted (e.g., IDOR probes, auth boundary checks), and any named recipes run (e.g., prompt-injection resistance recipe). Be specific — "visited /dashboard, /settings, /admin; attempted unauthenticated direct navigation to /admin; attempted IDOR on /api/submissions/:id."
+
+#### 6. Findings Table
+
+A Markdown table listing every confirmed finding (exclude `expected`):
+
+```
+| ID | Title | Severity | Type | Visibility | Status |
+|----|-------|----------|------|------------|--------|
+| [F-001](findings/F-001-admin-route-unprotected.md) | Unauthenticated access to /admin | CRITICAL | security | User-visible | Open |
+```
+
+Each ID links to its `.md` brief. Status is `Open` unless already fixed this run.
+
+#### 7. ⚠️ Unverified Capabilities
+
+Same list as the SUMMARY.md unverified section. Do not abbreviate or omit. A new reader skimming this file must see this prominently.
+
+#### 8. Regression Status
+
+Same content as the SUMMARY.md Regression Status section: which findings flipped red→green, which are still red, and the summary count.
+
+#### 9. Screenshots / Notes Location
+
+```
+**Run artifacts:** `.sleuth/runs/<run-id>/`
+```
+
+One line is sufficient. Note any non-standard artifact locations if applicable.
+
+#### 10. Next Steps
+
+Which `$sleuth-*` command to run next (e.g., `$sleuth-regression` to track fixes, `$sleuth-run` with the same persona to re-test unverified capabilities), and any blockers to resolve first (e.g., "Resolve the grading 503 before re-testing prompt-injection resistance").
+
+### Worked Example Skeleton
+
+```markdown
+# Sleuth HANDOFF — 20240612-143022
+
+**App:** GradeMirror — http://localhost:3000
+**Environment:** Local dev (Next.js dev server)
+**Date:** 2024-06-12 14:30
+
+## ROE Summary
+
+Target: http://localhost:3000. Allowed: read-only navigation, form submission with test data, network inspection.
+Costly/record-creating actions to avoid: do not submit real payment flows; do not send emails to real addresses.
+
+## What the App Is
+
+GradeMirror is an AI-assisted grading tool for educators. Teachers upload student essays and receive
+rubric-aligned scores and annotations generated by a language model.
+
+## Personas Used
+
+- **Teacher (admin):** `sleuth+20240612-143022-teacher@example.test` — full grading access
+- **Student (read-only):** `sleuth+20240612-143022-student@example.test` — can view own submissions only
+
+## Coverage
+
+- Routes: /, /login, /dashboard, /submissions, /submissions/:id, /admin, /api/grade
+- Flows: login → upload essay → trigger grading → view results; direct navigation to /admin while logged out
+- Security probes: unauthenticated direct navigation to /admin; IDOR probe on /api/submissions/:id with another user's ID
+- Recipes run: prompt-injection resistance (PARTIAL — see Unverified below)
+
+## Findings
+
+| ID | Title | Severity | Type | Visibility | Status |
+|----|-------|----------|------|------------|--------|
+| [F-001](findings/F-001-admin-route-unprotected.md) | Unauthenticated access to /admin returns 200 | CRITICAL | security | User-visible | Open |
+| [F-002](findings/F-002-grading-503.md) | /api/grade returns 503 for all requests | HIGH | bug | User-visible | Open |
+
+## ⚠️ Unverified Capabilities
+
+- **Prompt-injection resistance** — UNVERIFIED: /api/grade returned 503 throughout the run; grading could not be triggered (F-002).
+
+## Regression Status
+
+No regression history — this is the first recorded run.
+
+## Screenshots / Notes Location
+
+**Run artifacts:** `.sleuth/runs/20240612-143022/`
+
+## Next Steps
+
+1. Fix F-001 (unauthenticated /admin) — launch blocker.
+2. Investigate F-002 (/api/grade 503) — likely a missing env key or undeployed function; check server logs.
+3. Once F-002 is resolved, re-run `$sleuth-run` targeting the grading flow to verify prompt-injection resistance.
+```

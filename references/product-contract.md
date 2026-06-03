@@ -4,6 +4,32 @@ A Product Contract is the ground-truth document that tells the Sleuth agent what
 
 ---
 
+## Locate the Real Source First
+
+`detect-stack.mjs` runs on a TARGET path, but the RUNNING app may be served from a different location. This mismatch is common when the target directory is a QA harness, a fixtures folder, or a monorepo sub-package, while Vite (or another dev server) is actually serving the app from a sibling or parent directory.
+
+**Signals of a mismatch:**
+
+- `detect-stack` reports `framework: unknown` or zero routes, while the live app clearly has routes and components.
+- The browser's loaded `/src/...` files (visible in DevTools → Sources) do not exist in the target directory.
+- Network calls in the browser hit API endpoints or database tables that the target directory never references.
+
+**When a mismatch is detected, do one of the following:**
+
+**(a) Ask the user for the actual served-app source path**, then re-run `detect-stack.mjs` on that path. This is the preferred approach when the user is present.
+
+**(b) Reconstruct structure from the RUNNING app.** If the user isn't available, build the Product Contract from the running app's reality:
+
+- The live `/src` source files visible in DevTools → Sources.
+- The observable routes (navigate through the app and note each distinct URL pattern).
+- The network calls captured in DevTools → Network (API endpoints, DB table names, storage URLs).
+
+Do not guess based on the incomplete on-disk target directory. The contract must reflect what is actually running.
+
+**Record which source you used.** Add a brief note in `app.summary` (or as a sibling field `app.sourceNote`) stating whether the contract was built from the on-disk target path, a corrected path provided by the user, or reconstructed from the running app. Example: `"sourceNote": "Contract built from running app (DevTools introspection) — detect-stack target dir was a QA harness only."`.
+
+---
+
 ## Step 1 — Gather raw signals
 
 Before writing a single line of JSON, collect evidence from two sources:

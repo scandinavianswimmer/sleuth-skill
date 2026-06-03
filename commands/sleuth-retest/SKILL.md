@@ -57,3 +57,5 @@ Update `.sleuth/findings/SUMMARY.md` with:
 - Red→green (fixed) findings
 - Still-open findings
 - Any new regressions introduced
+
+Update `.sleuth/HANDOFF.md` with the red→green retest results.

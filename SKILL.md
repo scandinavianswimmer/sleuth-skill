@@ -37,34 +37,25 @@ Read `references/master-plan.md` for the full routing decision table.
 Run these phases in order. Load the named reference file before each reasoning-heavy phase.
 
 ### Phase 0 — Scope gate (safety)
-Read `references/safety-roe.md`. Confirm the target is `localhost` (or get explicit
-approval for another host). Refuse forbidden actions. Write `.sleuth/runs/<run-id>/roe.json`.
-`run-id` = `YYYYMMDD-HHMMSS`.
+Read `references/safety-roe.md` (see Cost & side-effects section). Confirm the target is `localhost` (or get explicit approval). Refuse forbidden actions. Write `.sleuth/runs/<run-id>/roe.json`. `run-id` = `YYYYMMDD-HHMMSS`.
 
 ### Phase 1 — Understand
-First initialize the workspace: `node scripts/scaffold.mjs init <repo-path>`.
-Run `node scripts/detect-stack.mjs <repo-path>` for deterministic structure. Then read
-`references/product-contract.md` and draft `.sleuth/product-contract.json`
-(what the app does, who it's for, roles, forbidden invariants). Validate:
-`node scripts/scaffold.mjs validate product-contract .sleuth/product-contract.json`.
+Initialize: `node scripts/scaffold.mjs init <repo-path>`. Run `node scripts/detect-stack.mjs <repo-path>`. Locate the real running source first (references/product-contract.md — handles target dir ≠ served app; records `app.sourceNote`). Draft + validate `.sleuth/product-contract.json`.
 
 ### Phase 2 — Profiles
 Read `references/personas.md`. Create 1 developer persona + 3 ICP personas (default)
 in `.sleuth/personas/`. Validate each with `scaffold.mjs validate persona`.
 
 ### Phase 3 — Drive
-Read `references/driving.md`. Developer pass first (exercise + push to limits), then one
-pass per ICP persona. Capture screenshots + notes to `.sleuth/runs/<run-id>/`.
+Read `references/driving.md`. Pick driving surface per `references/browser-tooling.md`. Developer pass first (exercise + push to limits), then one pass per ICP persona. Correlate failures with backend logs/source. Capture screenshots + notes to `.sleuth/runs/<run-id>/`.
 
 ### Phase 4 — Judge + brief
-Read `references/judging.md` then `references/briefs.md`. Classify + verify each
-observation (kill false positives), write validated findings to `.sleuth/findings/F-*.json`,
-render `F-*.md` briefs + `SUMMARY.md`.
+Read `references/judging.md` then `references/briefs.md`. Set each finding's `visibility`; surface UNVERIFIED capabilities. Kill false positives, write findings to `.sleuth/findings/F-*.json`, render `F-*.md` briefs + `SUMMARY.md`. Write `.sleuth/HANDOFF.md`. For AI grading/eval apps, apply `references/recipes/prompt-injection-grading.md`.
 
 ### Phase 5 — Regression memory
-First assemble all confirmed findings into one array file (the regression store reads an array, not the individual `F-*.json` files):
+Assemble findings into `_all.json` (regression store reads an array):
 ```bash
 node -e "const fs=require('fs'),d='.sleuth/findings';const a=fs.readdirSync(d).filter(f=>/^F-.*\.json$/.test(f)).map(f=>JSON.parse(fs.readFileSync(d+'/'+f,'utf8')));fs.writeFileSync(d+'/_all.json',JSON.stringify(a,null,2))"
 node scripts/regression.mjs record .sleuth/regression-memory.json <run-id> .sleuth/findings/_all.json
 ```
-On a later run after fixes, invoke the **$sleuth-retest** command — it re-drives prior findings run-scoped and flips fixed ones red→green.
+After fixes: invoke **$sleuth-retest** to re-drive and flip fixed findings red→green.

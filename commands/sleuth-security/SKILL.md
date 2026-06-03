@@ -27,7 +27,7 @@ node scripts/detect-stack.mjs <repo-path>
 Then draft + validate per `references/product-contract.md` before proceeding.
 
 ## Phase 1 — Security drive
-Read `references/driving.md` (security subset — pushing-to-limits checklist).
+Read `references/driving.md` (security subset — pushing-to-limits checklist). Pick driving surface per `references/browser-tooling.md`. Correlate failures with backend logs/source.
 Use a developer/adversarial persona. Drive these checks:
 
 1. **Direct navigation to guarded routes** — routes listed in Product Contract `forbidden` + apiRoutes from detect-stack output; attempt access while logged out.
@@ -39,7 +39,7 @@ Use a developer/adversarial persona. Drive these checks:
 Capture screenshots + notes to `.sleuth/runs/<run-id>/`.
 
 ## Phase 2 — Judge + brief (CWE-tagged)
-Read `references/judging.md` then `references/briefs.md`. Classify findings with CWE mapping:
+Read `references/judging.md` then `references/briefs.md`. Apply hidden-vs-user-visible severity calibration (judging.md — hidden security issues may warrant higher severity than they appear). Classify findings with CWE mapping:
 
 | Finding type | CWE |
 |---|---|
@@ -49,8 +49,9 @@ Read `references/judging.md` then `references/briefs.md`. Classify findings with
 | Sensitive data exposure | CWE-200 |
 | Missing security controls / headers | CWE-693 |
 
-Write validated findings to `.sleuth/findings/F-*.json` (include `cwe` field) and render
-`F-*.md` briefs + `SUMMARY.md`.
+Write validated findings to `.sleuth/findings/F-*.json` (include `cwe` + `visibility` fields) and render `F-*.md` briefs + `SUMMARY.md`. Write `.sleuth/HANDOFF.md`.
+
+For AI grading/eval apps, apply `references/recipes/prompt-injection-grading.md` as part of the security drive.
 
 ## Phase 3 — Regression memory
 This run's findings replace the prior set — clear stale `.sleuth/findings/F-*.json`

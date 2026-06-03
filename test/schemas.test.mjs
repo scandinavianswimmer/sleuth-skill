@@ -26,3 +26,9 @@ test('finding schema constrains type + severity via enum', () => {
   assert.deepEqual(s.properties.type.enum, ['bug', 'security', 'ux-friction', 'expected']);
   assert.deepEqual(s.properties.severity.enum, ['critical', 'high', 'medium', 'low', 'info']);
 });
+
+test('finding schema has optional visibility enum', () => {
+  const s = load('finding');
+  assert.ok(!s.required.includes('visibility'), 'visibility must not be in required[]');
+  assert.deepEqual(s.properties.visibility.enum, ['user-visible', 'hidden']);
+});

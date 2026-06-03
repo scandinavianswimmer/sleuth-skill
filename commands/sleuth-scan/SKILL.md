@@ -19,8 +19,7 @@ node scripts/detect-stack.mjs <repo-path>
 ```
 
 ## Phase 2 — Product Contract
-Read `references/product-contract.md`. Draft `.sleuth/product-contract.json` covering:
-what the app does, who it's for, roles, forbidden invariants. Validate:
+Read `references/product-contract.md`. **Locate the real running source first** — the target dir may differ from the served app; record the discrepancy in `app.sourceNote`. Draft `.sleuth/product-contract.json` covering: what the app does, who it's for, roles, forbidden invariants. Validate:
 ```bash
 node scripts/scaffold.mjs validate product-contract .sleuth/product-contract.json
 ```

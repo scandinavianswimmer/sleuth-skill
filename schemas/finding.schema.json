@@ -13,6 +13,7 @@
     "repro": { "type": "array", "items": { "type": "string" } },
     "evidence": { "type": "array", "items": { "type": "string" } },
     "suggestedFix": { "type": "string" },
-    "codingAgentPrompt": { "type": "string" }
+    "codingAgentPrompt": { "type": "string" },
+    "visibility": { "type": "string", "enum": ["user-visible", "hidden"] }
   }
 }

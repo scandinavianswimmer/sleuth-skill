@@ -145,6 +145,70 @@ Use only values from this table in `allowedActions`. If the user grants an unusu
 
 ---
 
+## Cost & Side-Effects
+
+Before driving, scan the app's capabilities and identify any actions that:
+
+- **(a) Call paid or metered AI endpoints** — grading, generation, embeddings, vision inference, or any third-party API charged per call/token.
+- **(b) Create persistent records** — signups, document uploads, form submissions, outbound email or SMS, webhooks, payment intents, or anything written to a production or staging data store.
+
+### Default posture: MINIMIZE
+
+Run each costly or record-creating scenario the **minimum number of times** needed to confirm the behavior — typically **once** for the primary observation, plus **one re-drive** for the false-positive gate. This means a paid action costs at most ~2 calls per scenario. Do NOT repeat a paid or record-creating action across all personas if one representative run suffices.
+
+### Run-scoped test data
+
+Use the run-scoped email pattern (`sleuth+<run-id>@example.test`) for all created accounts and submissions so that records are identifiable after the session. Note in the run's evidence log which records were created (account emails, IDs, reference numbers) so they can be cleaned up.
+
+### Recording costly and persistent actions in roe.json
+
+Two new fields are added to `roe.json` to document these actions before driving:
+
+| Field | Type | Description |
+|---|---|---|
+| `costlyActions` | string[] | Names of scenario/action steps that call paid or metered AI/API endpoints. |
+| `createsRecords` | string[] | Names of scenario/action steps that persist records (signups, uploads, submissions, outbound messages). |
+
+Add these fields alongside the existing fields (they may be empty arrays if none apply). Updated `roe.json` shape with the new fields:
+
+```json
+{
+  "runId": "20240612-143022",
+  "target": "http://localhost:3000",
+  "host": "localhost",
+  "environment": "local-dev",
+  "allowedActions": [
+    "form-submission",
+    "account-creation",
+    "direct-url-navigation",
+    "idor-probe",
+    "browser-back-and-refresh",
+    "double-submit-probe",
+    "unauthenticated-route-probe"
+  ],
+  "forbiddenActions": [
+    "real-payment-submission",
+    "outbound-email-or-sms",
+    "delete-non-test-data",
+    "credential-brute-force",
+    "network-level-attack",
+    "post-exploitation-escalation"
+  ],
+  "userRestrictions": [],
+  "costlyActions": ["ai-grading-submission", "essay-generation"],
+  "createsRecords": ["account-creation", "assignment-submission"],
+  "approvedBy": "user-confirmed-in-session",
+  "approvedAt": "2024-06-12T14:30:22Z",
+  "notes": ""
+}
+```
+
+### Stop and ask threshold
+
+If a scenario would incur significant cost (e.g., many paid AI calls) or create records that are hard to clean up (e.g., outbound emails to real addresses, payment intents in a live Stripe environment), **STOP and ask the user before proceeding** — especially before any high-volume paid run. Describe the action, estimate the cost or impact, and wait for explicit approval.
+
+---
+
 ## What to Do If Scope Is Unclear
 
 If at any point during driving you encounter an action that is not clearly covered by the `allowedActions` in `roe.json`, **stop driving, do not perform the action, and ask the user**. Record the question and the user's answer in `.sleuth/runs/<run-id>/roe-addendum.md` (plain text, timestamped). Do not modify `roe.json` after it has been written — the addendum file is the record of in-session scope expansions.
