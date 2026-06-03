@@ -36,3 +36,16 @@ test('initWorkspace creates .sleuth tree + empty regression memory', () => {
   const mem = JSON.parse(readFileSync(join(base, 'regression-memory.json'), 'utf8'));
   assert.deepEqual(mem, { findings: [], runs: [] });
 });
+
+test('validate: null value for object schema reports type mismatch, no secondary errors', () => {
+  const schema = loadSchema('persona');
+  const errs = validate(schema, null);
+  assert.equal(errs.length, 1);
+  assert.ok(errs[0].includes('expected object') && errs[0].includes('got null'));
+});
+
+test('validate: non-string item in an array field is reported with index path', () => {
+  const schema = loadSchema('persona');
+  const errs = validate(schema, { id: 'p1', kind: 'icp', name: 'X', goal: 'g', techSavvy: 'low', edgeBehaviors: ['ok', 42] });
+  assert.ok(errs.some(e => e.includes('edgeBehaviors[1]') && e.includes('expected string')));
+});

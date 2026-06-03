@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, realpathSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -15,6 +15,7 @@ export function validate(schema, value, path = '') {
     errs.push(`${at}: expected ${schema.type}, got ${typeOf(value)}`);
     return errs;
   }
+  // enum is only reached when the type check passed (type mismatch returns early above)
   if (schema.enum && !schema.enum.includes(value)) {
     errs.push(`${at}: '${value}' not in [${schema.enum.join(', ')}]`);
   }
@@ -54,6 +55,10 @@ function main() {
     process.stdout.write(`initialized ${initWorkspace(rest[0] || process.cwd())}\n`);
   } else if (cmd === 'validate') {
     const [kind, file] = rest;
+    if (!kind || !file) {
+      process.stderr.write('usage: scaffold.mjs validate <kind> <file>\n');
+      process.exit(2);
+    }
     const errs = validateFile(kind, file);
     if (errs.length) { process.stderr.write(errs.join('\n') + '\n'); process.exit(1); }
     process.stdout.write('valid\n');
@@ -62,4 +67,4 @@ function main() {
     process.exit(2);
   }
 }
-if (import.meta.url === `file://${process.argv[1]}`) main();
+if (import.meta.url === `file://${realpathSync(process.argv[1])}`) main();
