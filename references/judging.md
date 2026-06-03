@@ -120,3 +120,5 @@ The following is a complete, validated finding for an unprotected `/admin` route
 ```
 
 This finding uses `type: "security"` because it violates the authorization boundary (the `forbidden` array in the Product Contract should list unauthenticated admin access as prohibited). The severity is `critical` because an unauthenticated actor can access the full admin interface, which typically allows reading and modifying all user data. The CWE is CWE-862 because there is no server-side authorization check at all — the missing check, not an incorrect one, is the root cause. The `repro` array is written so that a developer who was not present during the session can reproduce the issue in under two minutes. The `evidence` array references the exact screenshot path under the run directory and includes the raw network observation that corroborates the screenshot.
+
+After all confirmed findings are written as individual `F-NNN-<slug>.json` files, Phase 5 assembles them into `.sleuth/findings/_all.json` (an array) for the regression store — see SKILL.md Phase 5.

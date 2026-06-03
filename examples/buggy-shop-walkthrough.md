@@ -203,11 +203,11 @@ The agent drives the live server at `http://localhost:4178`.
 
 ## Phase 4 — Findings
 
-### F-001 — Unprotected `/admin` (security, critical, CWE-862)
+### F-001-admin-route-unprotected — Unprotected `/admin` (security, critical, CWE-862)
 
 ```json
 {
-  "id": "F-001",
+  "id": "F-001-admin-route-unprotected",
   "title": "Unprotected /admin — unauthenticated access to admin panel",
   "type": "security",
   "severity": "critical",
@@ -231,11 +231,11 @@ The agent drives the live server at `http://localhost:4178`.
 }
 ```
 
-### F-002 — Unprotected `/dashboard` (security, critical, CWE-862)
+### F-002-dashboard-route-unprotected — Unprotected `/dashboard` (security, critical, CWE-862)
 
 ```json
 {
-  "id": "F-002",
+  "id": "F-002-dashboard-route-unprotected",
   "title": "Unprotected /dashboard — unauthenticated access to post-login page",
   "type": "security",
   "severity": "critical",
@@ -257,11 +257,11 @@ The agent drives the live server at `http://localhost:4178`.
 }
 ```
 
-### F-003 — Homepage JS console error (ux-friction, medium)
+### F-003-homepage-js-console-error — Homepage JS console error (ux-friction, medium)
 
 ```json
 {
-  "id": "F-003",
+  "id": "F-003-homepage-js-console-error",
   "title": "Homepage throws JS console error — trackPageViewThatDoesNotExist is not defined",
   "type": "ux-friction",
   "severity": "medium",
@@ -284,7 +284,7 @@ The agent drives the live server at `http://localhost:4178`.
 
 ### No false positives on working flows
 
-The following paths were exercised by all four personas and produced **no findings**:
+The following paths were exercised by all four personas and produced **no findings** (no `F-NNN-<slug>.json` files written):
 
 - `GET /` → `POST /signup` → redirect to `GET /dashboard` — complete signup flow works.
 - `GET /login` → `POST /login` → redirect to `GET /dashboard` — complete login flow works.
@@ -293,39 +293,53 @@ The following paths were exercised by all four personas and produced **no findin
 
 ---
 
-## Rendered brief — F-001 (example)
+## Rendered brief — F-001-admin-route-unprotected (example)
 
 ```markdown
-## F-001 · Critical Security · Unprotected /admin — unauthenticated access to admin panel
+# Unprotected /admin — unauthenticated access to admin panel
 
-**Route:** `/admin`  **CWE:** CWE-862 (Missing Authorization)  **Persona:** dev-01 (Alex)
+**Severity:** CRITICAL   **Type:** security
 
-### What happens
-Navigating to `/admin` without any session cookie returns HTTP 200 and renders
-the full admin dashboard, including user email addresses and revenue figures.
-No authentication or authorization check is applied by default.
+## Context
 
-### Root cause
-`server.mjs` line 143 gates the `ADMIN_ROUTES` guard on `process.env.SECURE_ADMIN === "1"`.
-Because `SECURE_ADMIN` is not set in the default configuration, the guard never runs.
+The `/admin` route returns HTTP 200 and renders the full admin dashboard to any visitor,
+including unauthenticated users with no session cookie. The `ADMIN_ROUTES` guard in
+`server.mjs` is gated on `process.env.SECURE_ADMIN === "1"`, so in the default
+configuration the guard never runs. The worst-case impact is total: an unauthenticated
+attacker can read user email addresses, revenue figures, and any other data the admin
+panel exposes.
 
-### Repro (copy-paste)
-1. `node server.mjs` (no env vars)
-2. `curl http://localhost:4178/admin`
-3. Response body contains `<h1>Admin dashboard</h1>` and sensitive user/revenue data.
+- **Route:** /admin
+- **Flow:** Navigate directly to http://localhost:4178/admin without any session cookie
+- **Persona:** dev-01
+- **CWE:** CWE-862 (Missing Authorization)
 
-### Evidence
-- HTTP 200 with admin HTML returned to unauthenticated caller.
-- `server.mjs:143` — guard condition `if (SECURE && role !== "admin")` is never true when `SECURE=false`.
+## Repro Steps
 
-### Fix
-Remove the `SECURE_ADMIN` opt-in; unconditionally enforce `role === "admin"` for
-all requests to `/admin` and `/admin/users`. Delete the `SECURE` flag from production paths.
+1. Start the server: node server.mjs (no SECURE_ADMIN env var)
+2. Open a fresh browser / curl with no cookies
+3. GET http://localhost:4178/admin
+4. Observe: full admin dashboard with user emails and revenue data renders (HTTP 200)
 
-### Coding agent prompt
-> In server.mjs, change the ADMIN_ROUTES guard so it always enforces `role === 'admin'`
-> regardless of the SECURE flag. Remove the SECURE_ADMIN env-var opt-in from production
-> code. Add a test that GET /admin without a session cookie returns HTTP 403.
+## Evidence
+
+- HTTP 200 response body contains '<h1>Admin dashboard</h1>'
+- Response includes 'user@example.com' and '$4,210' — sensitive data exposed to anonymous caller
+- server.mjs line 143: ADMIN_ROUTES guard only fires when SECURE=true; default is false
+
+## Suggested Fix
+
+Set SECURE_ADMIN=1 in production environment, or unconditionally require role === 'admin' for all requests to /admin and /admin/users. Remove the opt-in SECURE flag from production code paths.
+
+## CWE
+
+CWE-862 — Missing Authorization. The server-side authorization check is absent by default; the guard exists but is disabled unless an opt-in environment variable is set.
+
+## Coding-Agent Prompt
+
+```
+In server.mjs, change the ADMIN_ROUTES guard so it always enforces role === 'admin' regardless of the SECURE flag. Remove the SECURE_ADMIN env-var opt-in from production code. Add a test that GET /admin without a session cookie returns HTTP 403.
+```
 ```
 
 ---
@@ -400,12 +414,12 @@ then resolved when a subsequent run with `SECURE_ADMIN=1` (or equivalent fix) re
 All JSON examples in this document were validated before inclusion:
 
 ```
-node scripts/scaffold.mjs validate product-contract  → valid
-node scripts/scaffold.mjs validate persona (dev-01)  → valid
-node scripts/scaffold.mjs validate persona (icp-01)  → valid
-node scripts/scaffold.mjs validate persona (icp-02)  → valid
-node scripts/scaffold.mjs validate persona (icp-03)  → valid
-node scripts/scaffold.mjs validate finding  (F-001)  → valid
-node scripts/scaffold.mjs validate finding  (F-002)  → valid
-node scripts/scaffold.mjs validate finding  (F-003)  → valid
+node scripts/scaffold.mjs validate product-contract                          → valid
+node scripts/scaffold.mjs validate persona (dev-01)                          → valid
+node scripts/scaffold.mjs validate persona (icp-01)                          → valid
+node scripts/scaffold.mjs validate persona (icp-02)                          → valid
+node scripts/scaffold.mjs validate persona (icp-03)                          → valid
+node scripts/scaffold.mjs validate finding  (F-001-admin-route-unprotected)  → valid
+node scripts/scaffold.mjs validate finding  (F-002-dashboard-route-unprotected) → valid
+node scripts/scaffold.mjs validate finding  (F-003-homepage-js-console-error)   → valid
 ```

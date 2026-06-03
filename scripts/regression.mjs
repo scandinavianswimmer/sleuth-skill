@@ -64,6 +64,10 @@ function main() {
     process.stderr.write('usage: regression.mjs ' + cmd + ' <memPath> <runId> <findingsFile>\n');
     process.exit(2);
   }
+  if ((cmd === 'record' || cmd === 'diff') && !findingsFile) {
+    process.stderr.write('usage: regression.mjs ' + cmd + ' <memPath> <runId> <findingsFile>\n');
+    process.exit(2);
+  }
   const mem = load(memPath);
   if (cmd === 'plan') { process.stdout.write(JSON.stringify(plan(mem), null, 2) + '\n'); return; }
   const findings = findingsFile ? JSON.parse(readFileSync(findingsFile, 'utf8')) : [];

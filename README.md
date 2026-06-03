@@ -35,7 +35,7 @@ git clone <repo-url> ~/.agents/skills/sleuth
 git clone <repo-url> .agents/skills/sleuth
 ```
 
-No build step. Node.js 18+ required for the helper scripts.
+No build step. Node.js 20+ required for the helper scripts.
 
 ---
 

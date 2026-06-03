@@ -38,6 +38,9 @@ observation (kill false positives), write validated findings to `.sleuth/finding
 render `F-*.md` briefs + `SUMMARY.md`.
 
 ## Phase 5 — Regression memory
-`node scripts/regression.mjs record .sleuth/regression-memory.json <run-id> <findings.json>`.
-On a re-run, use `regression.mjs plan` to re-drive prior findings and `regression.mjs diff`
-to flip fixed ones red→green.
+First assemble all confirmed findings into one array file (the regression store reads an array, not the individual `F-*.json` files):
+```bash
+node -e "const fs=require('fs'),d='.sleuth/findings';const a=fs.readdirSync(d).filter(f=>/^F-.*\.json$/.test(f)).map(f=>JSON.parse(fs.readFileSync(d+'/'+f,'utf8')));fs.writeFileSync(d+'/_all.json',JSON.stringify(a,null,2))"
+node scripts/regression.mjs record .sleuth/regression-memory.json <run-id> .sleuth/findings/_all.json
+```
+On a re-run, use `regression.mjs plan .sleuth/regression-memory.json` to list prior findings to re-drive, and `node scripts/regression.mjs diff .sleuth/regression-memory.json <run-id> .sleuth/findings/_all.json` to flip fixed ones red→green.
