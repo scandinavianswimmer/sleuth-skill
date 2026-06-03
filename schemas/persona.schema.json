@@ -1,0 +1,14 @@
+{
+  "type": "object",
+  "required": ["id", "kind", "name", "goal", "techSavvy"],
+  "properties": {
+    "id": { "type": "string" },
+    "kind": { "type": "string", "enum": ["developer", "icp"] },
+    "name": { "type": "string" },
+    "goal": { "type": "string" },
+    "techSavvy": { "type": "string", "enum": ["low", "medium", "high"] },
+    "device": { "type": "string" },
+    "patience": { "type": "string", "enum": ["low", "medium", "high"] },
+    "edgeBehaviors": { "type": "array", "items": { "type": "string" } }
+  }
+}

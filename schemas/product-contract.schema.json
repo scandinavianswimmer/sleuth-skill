@@ -1,0 +1,33 @@
+{
+  "type": "object",
+  "required": ["app", "audience", "capabilities", "forbidden"],
+  "properties": {
+    "app": {
+      "type": "object",
+      "required": ["name", "summary"],
+      "properties": { "name": { "type": "string" }, "summary": { "type": "string" }, "url": { "type": "string" } }
+    },
+    "audience": {
+      "type": "object",
+      "required": ["icp", "signals"],
+      "properties": { "icp": { "type": "string" }, "signals": { "type": "array", "items": { "type": "string" } } }
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "flow"],
+        "properties": { "name": { "type": "string" }, "flow": { "type": "string" }, "critical": { "type": "boolean" } }
+      }
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": { "name": { "type": "string" }, "may": { "type": "array", "items": { "type": "string" } }, "mayNot": { "type": "array", "items": { "type": "string" } } }
+      }
+    },
+    "forbidden": { "type": "array", "items": { "type": "string" } }
+  }
+}

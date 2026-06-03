@@ -1,0 +1,18 @@
+{
+  "type": "object",
+  "required": ["id", "title", "type", "severity", "repro", "evidence"],
+  "properties": {
+    "id": { "type": "string" },
+    "title": { "type": "string" },
+    "type": { "type": "string", "enum": ["bug", "security", "ux-friction", "expected"] },
+    "severity": { "type": "string", "enum": ["critical", "high", "medium", "low", "info"] },
+    "route": { "type": "string" },
+    "flow": { "type": "string" },
+    "persona": { "type": "string" },
+    "cwe": { "type": "string" },
+    "repro": { "type": "array", "items": { "type": "string" } },
+    "evidence": { "type": "array", "items": { "type": "string" } },
+    "suggestedFix": { "type": "string" },
+    "codingAgentPrompt": { "type": "string" }
+  }
+}
