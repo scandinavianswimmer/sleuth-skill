@@ -1,0 +1,6 @@
+interface:
+  display_name: "Sleuth"
+  short_description: "Drives your running app as a dev + ICP beta-testers; returns fix-ready bug/security/UX briefs."
+  brand_color: "#1f6feb"
+policy:
+  allow_implicit_invocation: true
