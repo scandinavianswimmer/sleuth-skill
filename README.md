@@ -1,6 +1,114 @@
-# Sleuth (Codex Skill)
+# Sleuth — Codex QA + AppSec Skill
 
 Point Codex at your running app. Sleuth drives it like a developer and like your
-ICP beta-testers, then hands back fix-ready bug / security / UX briefs.
+ICP beta-testers, then returns fix-ready bug, security, and UX briefs — with
+regression memory that tracks findings across runs.
 
-Install and usage docs: see Task 10 (filled in last).
+---
+
+## What it does
+
+Sleuth closes the loop between "I think it works" and "I have verified evidence":
+
+```
+bug found → fix brief with repro + code prompt → developer fixes → Sleuth re-drives → regression memory flips red→green
+```
+
+Six phases, fully automated inside the Codex app:
+
+1. **Scope gate** — confirms the target is localhost (or gets explicit approval); writes ROE.
+2. **Understand** — reads the repo, runs `detect-stack`, drafts a Product Contract (what the app does, who it's for, what's forbidden).
+3. **Profiles** — creates 1 developer persona + 3 ICP personas calibrated to the app's audience.
+4. **Drive** — computer-use drives the live app as each persona; captures screenshots + notes.
+5. **Judge + brief** — classifies each observation, kills false positives, writes `F-*.json` findings and rendered `F-*.md` briefs.
+6. **Regression memory** — records findings with fingerprints; on re-runs, re-drives prior findings and flips fixed ones to `resolved`.
+
+---
+
+## Install
+
+```bash
+# Global install (available to all projects)
+git clone <repo-url> ~/.agents/skills/sleuth
+
+# Or per-project install
+git clone <repo-url> .agents/skills/sleuth
+```
+
+No build step. Node.js 18+ required for the helper scripts.
+
+---
+
+## Usage in the Codex app
+
+**Requirements:** Codex app with computer-use enabled. Point it at this skill repo.
+
+1. Start your app locally (e.g. `npm run dev` — it should be reachable at a URL).
+2. Open the Codex app, attach the `sleuth` skill.
+3. Invoke:
+
+```
+$sleuth path/to/your-repo http://localhost:3000
+```
+
+Sleuth will run all six phases and write artifacts under `.sleuth/` in your repo:
+- `.sleuth/product-contract.json`
+- `.sleuth/personas/`
+- `.sleuth/findings/F-*.json` and `F-*.md`
+- `.sleuth/runs/<run-id>/`
+- `.sleuth/regression-memory.json`
+
+On subsequent runs, it picks up `regression-memory.json` and re-verifies prior findings automatically.
+
+---
+
+## Computer-use caveat
+
+Computer-use runs inside the **Codex app**, not the CLI. It is geo-restricted at
+launch: not available in EEA, UK, or Switzerland. The skill installs and the helper
+scripts run everywhere; only the driving phase requires the app.
+
+The driving methodology is surface-agnostic — it works across OS computer-use,
+in-app browser mode, and Chrome mode. The output format (briefs, regression memory)
+is the same regardless of surface.
+
+---
+
+## Safety
+
+Sleuth's default rules of engagement (ROE) restrict it to `localhost` targets.
+It will refuse to drive an external URL unless you explicitly approve it in the
+scope-gate phase. It never submits destructive actions (deletes, payment flows,
+account termination) without explicit ROE expansion.
+
+ROE is written to `.sleuth/runs/<run-id>/roe.json` at the start of every run
+for audit purposes.
+
+---
+
+## How it works
+
+| Phase | What happens |
+|---|---|
+| 0 — Scope gate | Reads `references/safety-roe.md`; confirms target host; writes `roe.json` |
+| 1 — Understand | `detect-stack` for structure hints; code-read for routes; Product Contract drafted + validated |
+| 2 — Profiles | Developer persona + ICP personas created + validated against `schemas/persona.schema.json` |
+| 3 — Drive | Computer-use drives the live app; developer pass first, then one pass per ICP persona |
+| 4 — Judge + brief | Findings classified, false positives killed, `F-*.json` + `F-*.md` written |
+| 5 — Regression | `regression.mjs record` on first run; `regression.mjs diff` on re-runs; resolved findings flip green |
+
+Schemas (`schemas/`) and references (`references/`) are the ground truth for all
+validation and reasoning. Findings, personas, and the Product Contract are all
+validated by `scripts/scaffold.mjs validate` before being written.
+
+---
+
+## Example
+
+See [`examples/buggy-shop-walkthrough.md`](examples/buggy-shop-walkthrough.md) for a
+narrated end-to-end run against a deliberately-buggy fixture app, including:
+
+- Real `detect-stack` output + coverage note on the raw-http gap
+- Product Contract, developer persona, and 3 ICP personas (all validated)
+- Three findings (2 critical security, 1 UX friction) with full repro + briefs
+- Red→green regression proof (open → resolved)
