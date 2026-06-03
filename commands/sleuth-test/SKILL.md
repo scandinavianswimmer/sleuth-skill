@@ -41,6 +41,10 @@ kill false positives, write validated findings to `.sleuth/findings/F-*.json` an
 render `F-*.md` briefs + `SUMMARY.md`.
 
 ## Phase 4 — Regression memory
+This run's findings replace the prior set — clear stale `.sleuth/findings/F-*.json`
+(and `_all.json`) from any earlier run before writing this run's findings, so
+`_all.json` reflects only the current run.
+
 Assemble all confirmed findings, then record:
 ```bash
 node -e "const fs=require('fs'),d='.sleuth/findings';const a=fs.readdirSync(d).filter(f=>/^F-.*\.json$/.test(f)).map(f=>JSON.parse(fs.readFileSync(d+'/'+f,'utf8')));fs.writeFileSync(d+'/_all.json',JSON.stringify(a,null,2))"

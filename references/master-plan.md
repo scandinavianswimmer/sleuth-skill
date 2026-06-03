@@ -18,13 +18,15 @@ Check `.sleuth/` state first, then consult what the user asked.
 
 ## Routing decision table
 
+Evaluate top-to-bottom; first match wins.
+
 | Project state / signal | Phase | Command(s) to run | Why |
 |---|---|---|---|
-| No `.sleuth/` at all (greenfield, never tested) | 0 → 1 → 2 → 3 → 4 → 5 | `sleuth-scan` then `sleuth-test` | Must understand the app before testing it |
-| Contract + personas exist; code changed or new features shipped | 2 → 3 → 4 → 5 | `sleuth-test` | Prior understanding is still valid; re-drive with updated code |
-| Findings exist, user says "did my fix work" / "retest" / "regression" | 5 (diff pass) | `sleuth-retest` | Re-drive only the open/regressed findings; flip resolved ones green |
-| User says "is it secure" / "pentest" / "check auth" / "find vulnerabilities" | 3 (security subset) → 4 → 5 | `sleuth-security` | Security-focused drive: guarded routes, role escalation, IDOR, missing headers |
+| No `.sleuth/product-contract.json` (greenfield, never tested) | 0 → 1 → 2 → 3 → 4 → 5 | `sleuth-scan` then `sleuth-test` | Must understand the app before testing it |
+| User says "is it secure" / "security" / "vuln" / "check auth" / "find vulnerabilities" (any time) | 3 (security subset) → 4 → 5 | `sleuth-security` | Security-focused drive: guarded routes, role escalation, IDOR, missing headers |
 | User says "what is this app" / "who is it for" / "map my app" / understand only | 0 → 1 | `sleuth-scan` | Read-only understanding pass; does NOT drive the app |
+| Findings exist AND user says "did my fix work" / "verify the fix" / "check the fix" | 5 (diff pass) | `sleuth-retest` | Re-drive only the open/regressed findings; flip resolved ones green |
+| Contract + personas exist; user wants a test pass — "test my app", "test again", "new features shipped", or any test request not matching the fix-check row above | 2 → 3 → 4 → 5 | `sleuth-test` | Prior understanding still valid; fresh full-drive including when findings already exist |
 
 ---
 
@@ -44,7 +46,7 @@ Check `.sleuth/` state first, then consult what the user asked.
 
 ### B. Contract exists, code changed / new features
 
-**Signals:** `.sleuth/product-contract.json` exists. User says "test again", "I added a feature", "re-run Sleuth".
+**Signals:** `.sleuth/product-contract.json` exists. User says "test again", "I added a feature", "new features shipped", or any test request that isn't specifically asking to verify a prior fix.
 
 **Steps:**
 1. Check whether the Product Contract is still accurate — if routes or roles changed significantly, run `sleuth-scan` to refresh it.

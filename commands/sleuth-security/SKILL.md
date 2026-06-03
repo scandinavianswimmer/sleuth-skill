@@ -53,6 +53,10 @@ Write validated findings to `.sleuth/findings/F-*.json` (include `cwe` field) an
 `F-*.md` briefs + `SUMMARY.md`.
 
 ## Phase 3 — Regression memory
+This run's findings replace the prior set — clear stale `.sleuth/findings/F-*.json`
+(and `_all.json`) from any earlier run before writing this run's findings, so
+`_all.json` reflects only the current run.
+
 ```bash
 node -e "const fs=require('fs'),d='.sleuth/findings';const a=fs.readdirSync(d).filter(f=>/^F-.*\.json$/.test(f)).map(f=>JSON.parse(fs.readFileSync(d+'/'+f,'utf8')));fs.writeFileSync(d+'/_all.json',JSON.stringify(a,null,2))"
 node scripts/regression.mjs record .sleuth/regression-memory.json <run-id> .sleuth/findings/_all.json

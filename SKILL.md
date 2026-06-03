@@ -12,15 +12,15 @@ and return fix-ready developer briefs with regression memory.
 
 ## Phase detection
 
-Check which `.sleuth/` artifacts exist, then route:
+Check which `.sleuth/` artifacts exist, then route (evaluate top-to-bottom; first match wins):
 
 | Condition | Route to |
 |---|---|
-| No `.sleuth/product-contract.json` | Run full loop: scan → test |
-| Contract + personas exist, no `.sleuth/findings/` | `sleuth-test` |
-| Findings exist, user asks "did my fix work" / retest | `sleuth-retest` |
-| User asks "is it secure" / pentest / auth check | `sleuth-security` |
+| No `.sleuth/product-contract.json` (never tested) | Run full loop: scan → test |
+| User asks "is it secure" / security / vuln / auth check (any time) | `sleuth-security` |
 | User asks "what is this app" / understand only | `sleuth-scan` |
+| Findings exist AND user asks "did my fix work" / "verify the fix" / "check the fix" | `sleuth-retest` |
+| Contract + personas exist; user wants a test pass ("test my app", "test again", "new features shipped", or any test request not matching the fix-check row above) | `sleuth-test` |
 
 Read `references/master-plan.md` for the full routing decision table.
 
@@ -67,4 +67,4 @@ First assemble all confirmed findings into one array file (the regression store 
 node -e "const fs=require('fs'),d='.sleuth/findings';const a=fs.readdirSync(d).filter(f=>/^F-.*\.json$/.test(f)).map(f=>JSON.parse(fs.readFileSync(d+'/'+f,'utf8')));fs.writeFileSync(d+'/_all.json',JSON.stringify(a,null,2))"
 node scripts/regression.mjs record .sleuth/regression-memory.json <run-id> .sleuth/findings/_all.json
 ```
-On a re-run, use `regression.mjs plan .sleuth/regression-memory.json` to list prior findings to re-drive, and `node scripts/regression.mjs diff .sleuth/regression-memory.json <run-id> .sleuth/findings/_all.json` to flip fixed ones red→green.
+On a later run after fixes, invoke the **$sleuth-retest** command — it re-drives prior findings run-scoped and flips fixed ones red→green.
