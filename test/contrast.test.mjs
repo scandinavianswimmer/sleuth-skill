@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseColor, ratio, verdict } from '../scripts/contrast.mjs';
+import { parseColor, ratio, verdict, relativeLuminance } from '../scripts/contrast.mjs';
 
 test('parseColor handles #rgb, #rrggbb, rgb(), rgba()', () => {
   assert.deepEqual(parseColor('#fff'), { r: 255, g: 255, b: 255 });
@@ -29,4 +29,10 @@ test('verdict: thresholds for normal and large text', () => {
   assert.equal(verdict(3.0, { large: true }).aa, true);
   assert.equal(verdict(7.0, {}).aaa, true);
   assert.equal(verdict(4.5, { large: true }).aaa, true);
+});
+
+test('relativeLuminance: white is 1.0, black is 0.0', () => {
+  assert.ok(Math.abs(relativeLuminance('#ffffff') - 1) < 1e-9);
+  assert.ok(Math.abs(relativeLuminance('#000000') - 0) < 1e-9);
+  assert.equal(relativeLuminance('garbage'), null);
 });

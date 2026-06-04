@@ -45,12 +45,12 @@ export function verdict(r, opts = {}) {
 }
 
 function main() {
-  const [a, b, flag] = process.argv.slice(2);
+  const large = process.argv.includes('--large');
+  const [a, b] = process.argv.slice(2).filter((x) => x !== '--large');
   if (!a || !b) { process.stderr.write('usage: contrast.mjs <color1> <color2> [--large]\n'); process.exit(2); }
   const r = ratio(a, b);
   if (r == null) { process.stderr.write('could not parse one or both colors\n'); process.exit(2); }
-  const out = verdict(r, { large: flag === '--large' });
-  out.ratio = Math.round(r * 100) / 100;
+  const out = { ...verdict(r, { large }), ratio: Math.round(r * 100) / 100 };
   process.stdout.write(JSON.stringify(out, null, 2) + '\n');
 }
 if (import.meta.url === `file://${process.argv[1]}`) main();
