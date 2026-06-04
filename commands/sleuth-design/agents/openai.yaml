@@ -1,0 +1,6 @@
+interface:
+  display_name: "Sleuth Design"
+  short_description: "Audits your running app's UI/design + accessibility; flags AI-slop tells and WCAG fails with one-shot fix briefs."
+  brand_color: "#1f6feb"
+policy:
+  allow_implicit_invocation: true
