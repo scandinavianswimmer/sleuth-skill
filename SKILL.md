@@ -59,4 +59,4 @@ Assemble findings into `_all.json` (regression store reads an array):
 node -e "const fs=require('fs'),d='.sleuth/findings';const a=fs.readdirSync(d).filter(f=>/^F-.*\.json$/.test(f)).map(f=>JSON.parse(fs.readFileSync(d+'/'+f,'utf8')));fs.writeFileSync(d+'/_all.json',JSON.stringify(a,null,2))"
 node scripts/regression.mjs record .sleuth/regression-memory.json <run-id> .sleuth/findings/_all.json
 ```
-After fixes: invoke **$sleuth-retest** to re-drive and flip fixed findings red→green.
+After fixes: invoke **$sleuth-retest** to re-drive.

@@ -33,7 +33,7 @@ cd sleuth-skill
 ./install.sh
 ```
 
-This installs **5 skills** into `~/.agents/skills/` (default). To install elsewhere:
+This installs **6 skills** into `~/.agents/skills/` (default). To install elsewhere:
 
 ```bash
 ./install.sh /path/to/skills-dir
@@ -139,7 +139,7 @@ validated by `scripts/scaffold.mjs validate` before being written.
 - `references/ai-slop-tells.md` — catalogue of AI-generated UI patterns (gradient overuse, generic hero copy, symmetry locks, etc.) checked by `$sleuth-design`.
 - `references/accessibility-wcag.md` — WCAG 2.2 AA criterion checklist driving the a11y audit in `$sleuth-design`.
 - `scripts/contrast.mjs` — colour-contrast ratio calculator (WCAG 1.4.3/1.4.11) used during the design audit.
-- `scripts/design-scan.mjs` — orchestrates the full design pass; runs Lighthouse/axe when the chrome-devtools surface is available, falls back to static analysis otherwise.
+- `scripts/design-scan.mjs` — static analysis pass: walks source files for AI-slop tells (font count, color sprawl, z-index magic numbers, !important density, purple gradients, missing alt/lang). Lighthouse and axe run separately inside `$sleuth-design` (Phase 4) via the chrome-devtools surface.
 
 ---
 

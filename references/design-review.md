@@ -126,7 +126,7 @@ The JSON output is `{ ratio, large, aa, aaa }`. A finding is raised when `aa: fa
 - Body text on body background (the most common case)
 - Card/panel text on the card background (especially tinted card backgrounds like the muted-violet-on-tint pattern common in AI-generated dashboards)
 - Button label on button background (hover and default states)
-- Placeholder text in form fields on the field background — `#9ca3af` (gray-400) on white is only 2.85:1 and fails AA; this is one of the most common misses
+- Placeholder text in form fields on the field background — `#9ca3af` (gray-400) on white is only 2.54:1 and fails AA; this is one of the most common misses
 - Disabled text on disabled button/input background
 - Link text in body paragraphs against the paragraph background
 
@@ -324,7 +324,7 @@ Source path: /Users/dev/orbita/app (confirmed via DevTools → Sources cross-che
 |---|---|---|---|
 | ai-slop | 55 | F | Purple-to-indigo gradient on every CTA + dark-mesh hero; 2 major tells |
 | typography | 78 | C | 5 font families; hero clamp() peaks 7 rem; body line-length 88 ch on 1440 |
-| color-contrast | 62 | D | 6 contrast failures; gray-500 on violet-tint card is 3.09:1 — hard WCAG fail |
+| color-contrast | 62 | D | 6 contrast failures; gray-500 on violet-tint card is 4.31:1 — hard WCAG fail |
 | layout | 80 | B | Consistent 8px grid; some nested cards on detail view |
 | accessibility | 68 | D | 4 missing alt attrs; no lang on <html>; focus ring removed globally |
 | design-system | 85 | B | Mixed Heroicons + Lucide; disabled button indistinguishable from active |
@@ -342,7 +342,7 @@ Source path: /Users/dev/orbita/app (confirmed via DevTools → Sources cross-che
 
 ## Top Fixes Ranked by Impact
 
-1. **F-042 — Body copy contrast 3.09:1 on violet-tint card** (color-contrast, high) — Fails WCAG 1.4.3 AA; affects every metric card on the primary dashboard screen.
+1. **F-042 — Body copy contrast 4.31:1 on violet-tint card** (color-contrast, high) — Fails WCAG 1.4.3 AA; affects every metric card on the primary dashboard screen.
 2. **F-039 — Missing lang attribute on <html>** (accessibility, high) — Screen readers cannot infer pronunciation; WCAG 3.1.1 hard failure.
 3. **F-035 — Purple-to-indigo gradient as sole brand expression** (ai-slop, medium) — Signals AI-default identity; replace with a purposeful brand hue.
 4. **F-044 — Focus ring removed globally** (accessibility, medium) — Keyboard-only users lose all spatial context; WCAG 2.4.7.
@@ -390,7 +390,7 @@ Every design finding written to `.sleuth/findings/F-NNN-<slug>.json` must confor
 | `suggestedFix` | yes | Must carry a before→after value (see one-shot-fix rule) |
 | `codingAgentPrompt` | yes | Paste-ready prompt for a coding agent |
 
-**The before→after value requirement.** The `suggestedFix` field must express the change as a concrete before→after pair specifying the exact token, color hex, size value, or file change needed. "Improve the contrast" is not a before→after value. "Before: `color: #6b7280` on `background: #f3f0ff` (ratio 3.09). After: `color: #4b5563` on `background: #f3f0ff` (ratio 4.68, AA pass)" is. The coding-agent prompt must be self-contained enough that a fresh agent instance could apply the fix with no further investigation.
+**The before→after value requirement.** The `suggestedFix` field must express the change as a concrete before→after pair specifying the exact token, color hex, size value, or file change needed. "Improve the contrast" is not a before→after value. "Before: `color: #6b7280` on `background: #f3f0ff` (ratio 4.31). After: `color: #4b5563` on `background: #f3f0ff` (ratio 6.74, AA pass)" is. The coding-agent prompt must be self-contained enough that a fresh agent instance could apply the fix with no further investigation.
 
 ---
 
@@ -426,7 +426,7 @@ The following JSON was validated with `node scripts/scaffold.mjs validate findin
 ```json
 {
   "id": "F-042-body-copy-contrast-failure",
-  "title": "Body copy contrast ratio 3.1:1 fails WCAG 1.4.3 AA on tinted card background",
+  "title": "Body copy contrast ratio 4.31:1 fails WCAG 1.4.3 AA on tinted card background",
   "type": "design",
   "pillar": "color-contrast",
   "severity": "high",
@@ -438,15 +438,15 @@ The following JSON was validated with `node scripts/scaffold.mjs validate findin
     "Locate any metric card in the main grid (e.g., 'Total Revenue').",
     "Inspect the paragraph text inside the card — the label text below the large number.",
     "Note the text color (#6b7280, Tailwind gray-500) and card background (#f3f0ff, a light violet tint).",
-    "Run: node scripts/contrast.mjs '#6b7280' '#f3f0ff' — observe ratio 3.09, aa: false."
+    "Run: node scripts/contrast.mjs '#6b7280' '#f3f0ff' — observe ratio 4.31, aa: false."
   ],
   "evidence": [
     ".sleuth/runs/20260604-141500/dashboard-card-contrast.png — screenshot showing metric cards; label text visually washes out against the violet-tinted card surface.",
-    "node scripts/contrast.mjs '#6b7280' '#f3f0ff' → {\"ratio\": 3.09, \"large\": false, \"aa\": false, \"aaa\": false} — hard failure at normal text size (14px/400 weight).",
+    "node scripts/contrast.mjs '#6b7280' '#f3f0ff' → {\"ratio\": 4.31, \"large\": false, \"aa\": false, \"aaa\": false} — hard failure at normal text size (14px/400 weight).",
     "axe rule color-contrast flagged 6 instances of .card-body p across the dashboard grid."
   ],
-  "suggestedFix": "Before: color: #6b7280 on background: #f3f0ff (ratio 3.09 — fails AA). After: change label text color to #4b5563 (Tailwind gray-600); node scripts/contrast.mjs '#4b5563' '#f3f0ff' → ratio 4.68, aa: true. Alternatively, change the card background to #ffffff; node scripts/contrast.mjs '#6b7280' '#ffffff' → ratio 4.62, aa: true.",
-  "codingAgentPrompt": "You are fixing a confirmed design finding (color-contrast, WCAG 1.4.3) in this codebase.\n\nAffected selector: .card-body p\nFile(s) to change: the global stylesheet or Tailwind component that sets .card-body p's color and/or the card background.\n\nCurrent behavior: label text inside metric cards uses color #6b7280 (Tailwind gray-500) on a #f3f0ff violet-tinted card background, producing a contrast ratio of 3.09:1. WCAG 1.4.3 AA requires 4.5:1 for normal-weight text below 18pt.\n\nRequired behavior: label text must achieve at least 4.5:1 against its card background. Two compliant options:\n  Option A — change label text color: replace `color: #6b7280` with `color: #4b5563` (gray-600) → ratio 4.68:1 on #f3f0ff.\n  Option B — change card background: replace `background: #f3f0ff` with `background: #ffffff` (white) → ratio 4.62:1 with gray-500.\nPrefer Option A to preserve the card tint brand choice.\n\nInstructions:\n1. Locate .card-body p in the stylesheet or Tailwind config (search for 'gray-500' or '#6b7280' in card-related components).\n2. Apply Option A: change the text color to #4b5563 (Tailwind: text-gray-600).\n3. Run node scripts/contrast.mjs '#4b5563' '#f3f0ff' and confirm aa: true in the output.\n4. Verify there are no other .card-body variants that inherit gray-500 — check .card-body span and .card-body label as well.\n5. Commit with message: fix(a11y): increase card label contrast to meet WCAG 1.4.3 AA"
+  "suggestedFix": "Before: color: #6b7280 on background: #f3f0ff (ratio 4.31 — fails AA). After: change label text color to #4b5563 (Tailwind gray-600); node scripts/contrast.mjs '#4b5563' '#f3f0ff' → ratio 6.74, aa: true. Alternatively, change the card background to #ffffff; node scripts/contrast.mjs '#6b7280' '#ffffff' → ratio 4.83, aa: true.",
+  "codingAgentPrompt": "You are fixing a confirmed design finding (color-contrast, WCAG 1.4.3) in this codebase.\n\nAffected selector: .card-body p\nFile(s) to change: the global stylesheet or Tailwind component that sets .card-body p's color and/or the card background.\n\nCurrent behavior: label text inside metric cards uses color #6b7280 (Tailwind gray-500) on a #f3f0ff violet-tinted card background, producing a contrast ratio of 4.31:1. WCAG 1.4.3 AA requires 4.5:1 for normal-weight text below 18pt.\n\nRequired behavior: label text must achieve at least 4.5:1 against its card background. Two compliant options:\n  Option A — change label text color: replace `color: #6b7280` with `color: #4b5563` (gray-600) → ratio 6.74:1 on #f3f0ff.\n  Option B — change card background: replace `background: #f3f0ff` with `background: #ffffff` (white) → ratio 4.83:1 with gray-500.\nPrefer Option A to preserve the card tint brand choice.\n\nInstructions:\n1. Locate .card-body p in the stylesheet or Tailwind config (search for 'gray-500' or '#6b7280' in card-related components).\n2. Apply Option A: change the text color to #4b5563 (Tailwind: text-gray-600).\n3. Run node scripts/contrast.mjs '#4b5563' '#f3f0ff' and confirm aa: true in the output.\n4. Verify there are no other .card-body variants that inherit gray-500 — check .card-body span and .card-body label as well.\n5. Commit with message: fix(a11y): increase card label contrast to meet WCAG 1.4.3 AA"
 }
 ```
 

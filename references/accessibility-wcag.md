@@ -47,7 +47,7 @@ node scripts/contrast.mjs <fg> <bg>
 node scripts/contrast.mjs <fg> <bg> --large
 ```
 
-The script accepts hex (`#112233`, `#abc`), `rgb(r,g,b)`, and `rgba(r,g,b,a)` values. It prints a JSON object with `ratio`, `aa` (boolean), and `aaa` (boolean). The `--large` flag adjusts the threshold to 3:1 / 4.5:1 for large text. A ratio below the threshold is a hard failure.
+The script accepts hex (`#112233`, `#abc`), `rgb(r,g,b)`, and `rgba(r,g,b,a)` values. It prints a JSON object with `ratio`, `large`, `aa` (boolean), and `aaa` (boolean). The `--large` flag adjusts the threshold to 3:1 / 4.5:1 for large text. A ratio below the threshold is a hard failure.
 
 When a browser surface is available, also run Lighthouse via `chrome-devtools__lighthouse_audit` or run axe (rule `color-contrast`) via `chrome-devtools__evaluate_script`. These are **deterministic** when the browser surface is available. Lighthouse and axe can catch contrast failures that `contrast.mjs` alone cannot find because they have access to the computed CSS styles applied by the browser. Use both: axe/Lighthouse first for coverage, then `contrast.mjs` to confirm specific color pairs with exact ratio values to include in the finding.
 
@@ -171,10 +171,10 @@ node scripts/contrast.mjs "#334155" "#f8fafc"
 # → { ratio: 12.25, large: false, aa: true, aaa: true }
 
 node scripts/contrast.mjs "#94a3b8" "#f8fafc"
-# → { ratio: 2.95, large: false, aa: false, aaa: false }
+# → { ratio: 2.45, large: false, aa: false, aaa: false }
 
 node scripts/contrast.mjs "#94a3b8" "#f8fafc" --large
-# → { ratio: 2.95, large: true, aa: false, aaa: false }
+# → { ratio: 2.45, large: true, aa: false, aaa: false }
 ```
 
 The `--large` flag should be passed when the text meets the large-text definition: at least 18 pt (24 px) at normal weight, or at least 14 pt (18.67 px) bold. When in doubt, omit `--large` — the stricter 4.5:1 threshold applies and a pass under the stricter threshold is always acceptable.
@@ -216,7 +216,7 @@ Set `visibility` accurately and note the AT impact explicitly in the finding bri
 Every accessibility finding must include a concrete before/after that a developer can act on immediately, either in `suggestedFix` or `codingAgentPrompt`.
 
 **Contrast failure (1.4.3):**
-- Before: `color: #94a3b8` on `background: #f8fafc` → `contrast.mjs` reports ratio 2.95:1, aa: false.
+- Before: `color: #94a3b8` on `background: #f8fafc` → `contrast.mjs` reports ratio 2.45:1, aa: false.
 - After: change to `color: #475569` on `background: #f8fafc` → `contrast.mjs` reports ratio 6.84:1, aa: true. Cite the exact ratio in the fix so the developer can verify without re-running the tool.
 
 **Missing alt (1.1.1):**
@@ -239,7 +239,7 @@ Example for a contrast finding:
 
 ```
 The label text in the sidebar navigation (CSS class `.nav-label`) uses color #94a3b8 on background #f8fafc.
-Running `node scripts/contrast.mjs "#94a3b8" "#f8fafc"` returns ratio 2.95:1, which fails WCAG 1.4.3 AA
+Running `node scripts/contrast.mjs "#94a3b8" "#f8fafc"` returns ratio 2.45:1, which fails WCAG 1.4.3 AA
 (minimum 4.5:1 for normal text). Change the color to #475569 or darker. After the change, run
 `node scripts/contrast.mjs "<new-value>" "#f8fafc"` and confirm `aa: true` in the output. The fix must
 also cover the :hover and :active states if they apply a different color.
@@ -254,7 +254,7 @@ The following is a complete, validated finding for a contrast failure. Use it as
 ```json
 {
   "id": "F-007-body-text-contrast-fail",
-  "title": "Sidebar nav labels fail WCAG 1.4.3 AA contrast minimum (2.95:1, required 4.5:1)",
+  "title": "Sidebar nav labels fail WCAG 1.4.3 AA contrast minimum (2.45:1, required 4.5:1)",
   "type": "design",
   "pillar": "accessibility",
   "wcag": "1.4.3",
@@ -267,14 +267,14 @@ The following is a complete, validated finding for a contrast failure. Use it as
     "Navigate to /dashboard.",
     "Inspect the sidebar navigation labels (e.g., 'Overview', 'Findings', 'Settings').",
     "Run: node scripts/contrast.mjs '#94a3b8' '#f8fafc'",
-    "Observe: ratio 2.95:1, aa: false — below the 4.5:1 AA minimum for normal-weight body text."
+    "Observe: ratio 2.45:1, aa: false — below the 4.5:1 AA minimum for normal-weight body text."
   ],
   "evidence": [
     ".sleuth/runs/20240612-143022/dev-dashboard-sidebar-contrast.png — screenshot of sidebar with computed colors visible in DevTools; foreground #94a3b8, background #f8fafc.",
-    "contrast.mjs output: { ratio: 2.95, large: false, aa: false, aaa: false }"
+    "contrast.mjs output: { ratio: 2.45, large: false, aa: false, aaa: false }"
   ],
   "suggestedFix": "Change the sidebar label color from #94a3b8 to #475569 (or any color that achieves ratio ≥ 4.5:1 against #f8fafc). Verify with: node scripts/contrast.mjs '#475569' '#f8fafc' — expected output: ratio ≥ 6.8:1, aa: true.",
-  "codingAgentPrompt": "The sidebar navigation labels in /dashboard use color #94a3b8 on background #f8fafc. This pair has a contrast ratio of 2.95:1, which fails WCAG 1.4.3 AA (minimum 4.5:1 for normal text). Change the label color to #475569 or a darker equivalent. After the change, run `node scripts/contrast.mjs '<new-fg>' '#f8fafc'` and confirm the output shows `aa: true`. Apply the same fix to the :hover and :active states if they use the same color. This change should affect only the sidebar nav labels — do not alter the icon colors or the active-state highlight color without separate contrast verification."
+  "codingAgentPrompt": "The sidebar navigation labels in /dashboard use color #94a3b8 on background #f8fafc. This pair has a contrast ratio of 2.45:1, which fails WCAG 1.4.3 AA (minimum 4.5:1 for normal text). Change the label color to #475569 or a darker equivalent. After the change, run `node scripts/contrast.mjs '<new-fg>' '#f8fafc'` and confirm the output shows `aa: true`. Apply the same fix to the :hover and :active states if they use the same color. This change should affect only the sidebar nav labels — do not alter the icon colors or the active-state highlight color without separate contrast verification."
 }
 ```
 
