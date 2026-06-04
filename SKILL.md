@@ -5,7 +5,7 @@ description: Master entry for Sleuth — test/QA/beta-test/security-check a runn
 
 # Sleuth — Master Router
 
-Drive a running app like a developer and like its real ICP users, find what breaks,
+Drive a running app like a developer and its real ICP users, find what breaks,
 and return fix-ready developer briefs with regression memory.
 
 **Inputs:** path to the app's repo + the URL it's running at (default `http://localhost:3000`).
@@ -20,37 +20,38 @@ Check which `.sleuth/` artifacts exist, then route (evaluate top-to-bottom; firs
 | User asks "is it secure" / security / vuln / auth check (any time) | `sleuth-security` |
 | User asks "what is this app" / understand only | `sleuth-scan` |
 | Findings exist AND user asks "did my fix work" / "verify the fix" / "check the fix" | `sleuth-retest` |
-| Contract + personas exist; user wants a test pass ("test my app", "test again", "new features shipped", or any test request not matching the fix-check row above) | `sleuth-test` |
+| User asks to review/audit design, "does it look AI-made", a11y/WCAG/ADA, accessibility feedback | `sleuth-design` |
+| Contract + personas exist; user wants a test pass ("test my app", "test again", "new features shipped", or any test request not matching the rows above) | `sleuth-test` |
 
 Read `references/master-plan.md` for the full routing decision table.
 
-## The five commands
+## The six commands
 
 - **`$sleuth`** — this router; auto-detects phase and delegates.
 - **`$sleuth-scan`** — understand the app only (no driving). Builds Product Contract + ICP summary.
 - **`$sleuth-test`** — full beta test: personas → drive → judge → briefs → regression record.
 - **`$sleuth-security`** — security-focused drive: auth, IDOR, role escalation, missing headers.
 - **`$sleuth-retest`** — regression retest: re-drive prior findings, flip fixed ones green.
+- **`$sleuth-design`** — 8-pillar UI/design + WCAG 2.2 AA audit; AI-slop tells + fix briefs → `.sleuth/design/DESIGN-REVIEW.md`.
 
 ## Full loop (first-ever run, no `.sleuth/` state)
 
-Run these phases in order. Load the named reference file before each reasoning-heavy phase.
+Run these phases in order. Load the named reference before each reasoning-heavy phase.
 
 ### Phase 0 — Scope gate (safety)
-Read `references/safety-roe.md` (see Cost & side-effects section). Confirm the target is `localhost` (or get explicit approval). Refuse forbidden actions. Write `.sleuth/runs/<run-id>/roe.json`. `run-id` = `YYYYMMDD-HHMMSS`.
+Read `references/safety-roe.md`. Confirm target is `localhost` (or get explicit approval). Refuse forbidden actions. Write `.sleuth/runs/<run-id>/roe.json`. `run-id` = `YYYYMMDD-HHMMSS`.
 
 ### Phase 1 — Understand
-Initialize: `node scripts/scaffold.mjs init <repo-path>`. Run `node scripts/detect-stack.mjs <repo-path>`. Locate the real running source first (references/product-contract.md — handles target dir ≠ served app; records `app.sourceNote`). Draft + validate `.sleuth/product-contract.json`.
+`node scripts/scaffold.mjs init <repo-path>` + `node scripts/detect-stack.mjs <repo-path>`. Locate real running source (see references/product-contract.md; records `app.sourceNote`). Draft + validate `.sleuth/product-contract.json`.
 
 ### Phase 2 — Profiles
-Read `references/personas.md`. Create 1 developer persona + 3 ICP personas (default)
-in `.sleuth/personas/`. Validate each with `scaffold.mjs validate persona`.
+Read `references/personas.md`. Create 1 developer + 3 ICP personas in `.sleuth/personas/`. Validate with `scaffold.mjs validate persona`.
 
 ### Phase 3 — Drive
-Read `references/driving.md`. Pick driving surface per `references/browser-tooling.md`. Developer pass first (exercise + push to limits), then one pass per ICP persona. Correlate failures with backend logs/source. Capture screenshots + notes to `.sleuth/runs/<run-id>/`. For AI grading/eval apps, apply `references/recipes/prompt-injection-grading.md`.
+Read `references/driving.md` + `references/browser-tooling.md`. Developer pass first, then one pass per ICP persona. Correlate failures with logs/source. Capture screenshots + notes to `.sleuth/runs/<run-id>/`. For AI grading/eval apps apply `references/recipes/prompt-injection-grading.md`.
 
 ### Phase 4 — Judge + brief
-Read `references/judging.md` then `references/briefs.md`. Set each finding's `visibility`; surface UNVERIFIED capabilities. Kill false positives, write findings to `.sleuth/findings/F-*.json`, render `F-*.md` briefs + `SUMMARY.md`. Write `.sleuth/HANDOFF.md`.
+Read `references/judging.md` + `references/briefs.md`. Set `visibility`; surface UNVERIFIED capabilities. Kill false positives, write `.sleuth/findings/F-*.json`, render `F-*.md` briefs + `SUMMARY.md`. Write `.sleuth/HANDOFF.md`.
 
 ### Phase 5 — Regression memory
 Assemble findings into `_all.json` (regression store reads an array):

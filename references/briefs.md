@@ -313,6 +313,8 @@ List each persona that was active this run — name, role, and email pattern (e.
 
 Bullet list of what was actually tested: routes navigated, flows exercised, security probes attempted (e.g., IDOR probes, auth boundary checks), and any named recipes run (e.g., prompt-injection resistance recipe). Be specific — "visited /dashboard, /settings, /admin; attempted unauthenticated direct navigation to /admin; attempted IDOR on /api/submissions/:id."
 
+If a design audit ran, link `.sleuth/design/DESIGN-REVIEW.md` and note the overall design grade.
+
 #### 6. Findings Table
 
 A Markdown table listing every confirmed finding (exclude `expected`):

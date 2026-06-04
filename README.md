@@ -57,6 +57,7 @@ To uninstall:
 | `$sleuth-test` | Full beta test: personas → drive as dev + ICP → judge findings → write briefs → record regression memory. Use for "test my app / find bugs / QA this". |
 | `$sleuth-security` | Security-focused drive: guarded routes, role escalation, IDOR, missing headers. Authorized defensive testing only. Use for "is my app secure / pentest". |
 | `$sleuth-retest` | Regression retest: re-drives prior open findings, flips fixed ones green, flags regressions. Use for "did my fix work / check the fix". |
+| `$sleuth-design` | Audit UI/design + accessibility — AI-slop tells + WCAG 2.2 AA with one-shot fix briefs. Produces `.sleuth/design/DESIGN-REVIEW.md` scorecard. |
 
 `$sleuth` auto-routes by phase — see [`references/master-plan.md`](references/master-plan.md) for the full decision table.
 
@@ -134,6 +135,11 @@ validated by `scripts/scaffold.mjs validate` before being written.
 - `references/browser-tooling.md` — driving surface selection (OS computer-use vs. in-app browser vs. Chrome/Playwright); consult this before the drive phase.
 - `references/safety-roe.md` — now includes a Cost & side-effects section covering paid AI calls and `costlyActions`/`createsRecords` fields in `roe.json`; be cost-aware when testing AI-powered apps.
 - `references/product-contract.md` — includes "Locate the real source first" guidance: Sleuth reconciles the running app's real source when the target directory isn't the served app (records discrepancy in `app.sourceNote`).
+- `references/design-review.md` — 8-pillar design scoring rubric used by `$sleuth-design`.
+- `references/ai-slop-tells.md` — catalogue of AI-generated UI patterns (gradient overuse, generic hero copy, symmetry locks, etc.) checked by `$sleuth-design`.
+- `references/accessibility-wcag.md` — WCAG 2.2 AA criterion checklist driving the a11y audit in `$sleuth-design`.
+- `scripts/contrast.mjs` — colour-contrast ratio calculator (WCAG 1.4.3/1.4.11) used during the design audit.
+- `scripts/design-scan.mjs` — orchestrates the full design pass; runs Lighthouse/axe when the chrome-devtools surface is available, falls back to static analysis otherwise.
 
 ---
 
