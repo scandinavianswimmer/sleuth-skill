@@ -23,7 +23,7 @@ test('persona schema constrains kind + techSavvy via enum', () => {
 
 test('finding schema constrains type + severity via enum', () => {
   const s = load('finding');
-  assert.deepEqual(s.properties.type.enum, ['bug', 'security', 'ux-friction', 'expected']);
+  assert.deepEqual(s.properties.type.enum, ['bug', 'security', 'ux-friction', 'design', 'expected']);
   assert.deepEqual(s.properties.severity.enum, ['critical', 'high', 'medium', 'low', 'info']);
 });
 
@@ -31,4 +31,16 @@ test('finding schema has optional visibility enum', () => {
   const s = load('finding');
   assert.ok(!s.required.includes('visibility'), 'visibility must not be in required[]');
   assert.deepEqual(s.properties.visibility.enum, ['user-visible', 'hidden']);
+});
+
+test('finding schema allows the design type and pillar/wcag/selector', () => {
+  const s = load('finding');
+  assert.ok(s.properties.type.enum.includes('design'));
+  assert.deepEqual(s.properties.pillar.enum, [
+    'ai-slop', 'typography', 'color-contrast', 'layout',
+    'accessibility', 'design-system', 'motion', 'performance',
+  ]);
+  assert.equal(s.properties.wcag.type, 'string');
+  assert.equal(s.properties.selector.type, 'string');
+  assert.ok(!s.required.includes('pillar'));
 });
