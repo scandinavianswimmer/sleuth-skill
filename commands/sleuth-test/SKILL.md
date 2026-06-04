@@ -32,6 +32,15 @@ node scripts/scaffold.mjs validate persona .sleuth/personas/<name>.json
 ## Phase 2 — Drive
 Read `references/driving.md`. Pick driving surface per `references/browser-tooling.md` (surface selection + Playwright availability). Developer pass first (full exercise + push-to-limits checklist including friction hunting), then one pass per ICP persona. Correlate failures with backend logs/source. Capture screenshots + notes to `.sleuth/runs/<run-id>/`. For AI grading/eval apps, run `references/recipes/prompt-injection-grading.md` during this phase.
 
+## Phase 2b — Lightweight design/a11y sweep
+After functional + ICP passes, run a quick sweep — surface worst offenders only; do NOT run the full 8-pillar audit (that's `$sleuth-design`).
+
+1. **Static tells** — `node scripts/design-scan.mjs <repo>` (AI-slop typography, spacing, layout red flags).
+2. **Contrast** — `node scripts/contrast.mjs <fg> <bg>` on the primary body-text/background pair.
+3. **One-screen visual check** — scan for top AI-slop tells + any critical WCAG fail: missing `alt`/labels, unreadable contrast, tiny tap targets.
+4. **Surface only the worst** — log findings as `type: design`; set `pillar` + `visibility`. Skip minor polish issues.
+5. End sweep note: "For a full design + accessibility audit, run `$sleuth-design`."
+
 ## Phase 3 — Judge + brief
 Read `references/judging.md` then `references/briefs.md`. Set each finding's `visibility` (user-visible vs hidden); surface UNVERIFIED capabilities. Classify each observation, kill false positives, write validated findings to `.sleuth/findings/F-*.json` and render `F-*.md` briefs + `SUMMARY.md`. Write `.sleuth/HANDOFF.md` (master artifact per `references/briefs.md`).
 
