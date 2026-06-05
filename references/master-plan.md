@@ -26,6 +26,7 @@ Evaluate top-to-bottom; first match wins.
 | User says "is it secure" / "security" / "vuln" / "check auth" / "find vulnerabilities" (any time) | 3 (security subset) → 4 → 5 | `sleuth-security` | Security-focused drive: guarded routes, role escalation, IDOR, missing headers |
 | User says "what is this app" / "who is it for" / "map my app" / understand only | 0 → 1 | `sleuth-scan` | Read-only understanding pass; does NOT drive the app |
 | Findings exist AND user says "did my fix work" / "verify the fix" / "check the fix" | 5 (diff pass) | `sleuth-retest` | Re-drive only the open/regressed findings; flip resolved ones green |
+| Findings exist AND user wants Sleuth to FIX / apply / heal / auto-fix the findings ("fix it", "apply the fixes", "heal my app", "one-shot the fixes", "auto-fix the findings") | Heal | `sleuth-fix` | Applies + verifies fixes on a reversible safety branch; flips findings red→green; produces FIX-REPORT.md |
 | User wants a design / UI / accessibility / ADA review (or "does this look AI-made") | Design audit | `sleuth-design` | Deep 8-pillar UI + WCAG 2.2 AA audit with a scorecard + one-shot fix briefs |
 | Contract + personas exist; user wants a test pass — "test my app", "test again", "new features shipped", or any test request not matching the fix-check row above | 2 → 3 → 4 → 5 | `sleuth-test` | Prior understanding still valid; fresh full-drive including when findings already exist |
 

@@ -315,6 +315,8 @@ Bullet list of what was actually tested: routes navigated, flows exercised, secu
 
 If a design audit ran, link `.sleuth/design/DESIGN-REVIEW.md` and note the overall design grade.
 
+If a heal run (`$sleuth-fix`) ran, note the `sleuth/fix-<run-id>` branch and link `.sleuth/fixes/FIX-REPORT.md` (fixed / needs-human counts).
+
 #### 6. Findings Table
 
 A Markdown table listing every confirmed finding (exclude `expected`):

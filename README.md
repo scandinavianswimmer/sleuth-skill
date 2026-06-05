@@ -58,8 +58,35 @@ To uninstall:
 | `$sleuth-security` | Security-focused drive: guarded routes, role escalation, IDOR, missing headers. Authorized defensive testing only. Use for "is my app secure / pentest". |
 | `$sleuth-retest` | Regression retest: re-drives prior open findings, flips fixed ones green, flags regressions. Use for "did my fix work / check the fix". |
 | `$sleuth-design` | Audit UI/design + accessibility — AI-slop tells + WCAG 2.2 AA with one-shot fix briefs. Produces `.sleuth/design/DESIGN-REVIEW.md` scorecard. |
+| `$sleuth-fix` | Apply + verify fixes for prior findings on a safety branch — the red→green heal loop. |
 
 `$sleuth` auto-routes by phase — see [`references/master-plan.md`](references/master-plan.md) for the full decision table.
+
+### `$sleuth-fix` — the heal loop
+
+`$sleuth-fix` requires a prior run that produced findings (regression memory must exist). It never pushes or opens a PR without explicit confirmation.
+
+**How it works:**
+
+1. Creates a reversible git branch `sleuth/fix-<run-id>` — every fix is an atomic commit; the whole branch can be reverted in one command.
+2. Applies fixes for each open finding in order of severity, then re-drives the app to verify.
+3. Findings that pass verification flip red→green in regression memory.
+4. Findings that cannot be auto-fixed (require human judgment, schema changes, or third-party integrations) are flagged `needs-human` in the report.
+5. Writes `.sleuth/fixes/FIX-REPORT.md` — a table of fixed / needs-human counts, one row per finding.
+
+**Flags:**
+
+| Flag | Effect |
+|---|---|
+| `--review` | Show a diff of every proposed change and prompt for approval before committing each fix. |
+| `--severity HIGH` | Only attempt fixes for findings at or above the given severity (CRITICAL, HIGH, MEDIUM, LOW). |
+| `--only F-001,F-003` | Only attempt fixes for the specified finding IDs. |
+
+**Artifacts produced:**
+
+- `sleuth/fix-<run-id>` git branch — all fixes as atomic commits; revert with `git branch -D sleuth/fix-<run-id>` or `git revert`.
+- `.sleuth/fixes/FIX-REPORT.md` — fixed / needs-human counts + per-finding status.
+- Updated `.sleuth/regression-memory.json` — verified fixes flip to `resolved`.
 
 ---
 
