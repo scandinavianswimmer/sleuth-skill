@@ -17,7 +17,7 @@ const CATEGORIES = {
   },
   typecheck: {
     names: [/^type-?check$/, /(^|[:_-])type-?check([:_-]|$)/, /^tsc$/],
-    cmds: [/tsc\s+--noemit/, /tsc\s+-p\b/, /tsc\s+--project/, /vue-tsc/],
+    cmds: [/tsc\s+--noemit/, /tsc\s+-p\b/, /tsc\s+--project/, /vue-tsc/, /\btsc\b/],
     exclude: [],
   },
   lint: {

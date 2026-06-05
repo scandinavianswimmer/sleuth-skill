@@ -33,3 +33,8 @@ test('empty / missing scripts → all null', () => {
   assert.deepEqual(classifyScripts({}), { build: null, test: null, typecheck: null, lint: null });
   assert.deepEqual(classifyScripts(), { build: null, test: null, typecheck: null, lint: null });
 });
+
+test('classifies a bare tsc command as typecheck', () => {
+  assert.equal(classifyScripts({ compile: 'tsc' }).typecheck, 'compile');
+  assert.equal(classifyScripts({ build: 'next build', check: 'tsc' }).typecheck, 'check');
+});
