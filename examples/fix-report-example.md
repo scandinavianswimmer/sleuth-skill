@@ -372,7 +372,7 @@ Written to `.sleuth/fixes/FIX-REPORT.md`:
 
 ---
 
-```markdown
+````markdown
 # Sleuth Fix Report — 20260604-091532
 
 ## Summary
@@ -399,7 +399,7 @@ git checkout main && git merge sleuth/fix-20260604-091532
 # Discard the fix branch entirely
 git branch -D sleuth/fix-20260604-091532
 ```
-```
+````
 
 ---
 

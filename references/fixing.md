@@ -55,7 +55,7 @@ Sort the remaining findings in severity order before processing: `critical` → 
 |---|---|
 | `--review` | After applying a fix but before committing, show the diff and wait for the user's explicit OK. Apply on approval; discard on rejection. |
 | `--severity <min>` | Only process findings at or above the given severity. `--severity high` keeps `critical` and `high`; findings below the threshold are recorded as skipped. |
-| `--only <finding-id>` | Process exactly one finding, identified by its `id` field (e.g., `F-007`). All others are skipped for this run. |
+| `--only <id>[,<id>…]` | Process only the specified finding IDs (comma-separated); all others are skipped this run. |
 
 ---
 
@@ -216,6 +216,8 @@ git branch -D sleuth/fix-<run-id>
 
 Replace `<base-branch>` with the branch that was checked out before `$sleuth-fix` ran (recorded in Step 0 as the branch from which `sleuth/fix-<run-id>` was created).
 
+Also update `.sleuth/findings/SUMMARY.md` and `.sleuth/HANDOFF.md` with a note recording the `sleuth/fix-<run-id>` branch, the fixed / needs-human / skipped counts, and a link to `.sleuth/fixes/FIX-REPORT.md`.
+
 ---
 
 ### Worked Example FIX-REPORT
@@ -226,7 +228,7 @@ The following is a filled-in example for a run against the YogaBook app. Run ID:
 
 **`.sleuth/fixes/FIX-REPORT.md`**
 
-```
+````markdown
 # Sleuth Fix Report — 20240612-143022
 
 ## Summary
@@ -244,6 +246,7 @@ Fixed: 2 | Needs-human: 1 | Skipped: 1
 
 ## Review This Fix Branch
 
+```bash
 # Inspect all changes on the fix branch
 git diff main...sleuth/fix-20240612-143022
 
@@ -253,6 +256,7 @@ git checkout main && git merge sleuth/fix-20240612-143022
 # Discard the fix branch entirely
 git branch -D sleuth/fix-20240612-143022
 ```
+````
 
 ---
 

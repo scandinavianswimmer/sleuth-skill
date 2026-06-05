@@ -20,7 +20,7 @@ Check which `.sleuth/` artifacts exist, then route (evaluate top-to-bottom; firs
 | User asks "is it secure" / security / vuln / auth check (any time) | `sleuth-security` |
 | User asks "what is this app" / understand only | `sleuth-scan` |
 | Findings exist AND user asks "did my fix work" / "verify the fix" / "check the fix" | `sleuth-retest` |
-| Findings exist AND user asks "fix it" / "apply the fixes" / "heal my app" / "auto-fix" / "one-shot the fixes" | `sleuth-fix` |
+| open/regressed findings in regression memory AND user asks "fix it" / "apply the fixes" / "heal my app" / "auto-fix" / "one-shot the fixes" | `sleuth-fix` |
 | User asks to review/audit design, "does it look AI-made", a11y/WCAG/ADA, accessibility feedback | `sleuth-design` |
 | Contract + personas exist; user wants a test pass ("test my app", "test again", "new features shipped", or any test request not matching the rows above) | `sleuth-test` |
 
@@ -50,7 +50,7 @@ Read `references/safety-roe.md`. Confirm `localhost` (or get explicit approval).
 Read `references/personas.md`. Create 1 developer + 3 ICP personas in `.sleuth/personas/`. Validate with `scaffold.mjs validate persona`.
 
 ### Phase 3 — Drive
-Read `references/driving.md` + `references/browser-tooling.md`. Developer pass first, then one ICP pass each. Capture screenshots + notes to `.sleuth/runs/<run-id>/`. For AI grading apps apply `references/recipes/prompt-injection-grading.md`.
+Read `references/driving.md` + `references/browser-tooling.md`. Developer pass first, then one ICP pass each. Capture screenshots + notes to `.sleuth/runs/<run-id>/`. For AI grading apps: `references/recipes/prompt-injection-grading.md`.
 
 ### Phase 4 — Judge + brief
 Read `references/judging.md` + `references/briefs.md`. Kill false positives, write `.sleuth/findings/F-*.json`, render `F-*.md` briefs + `SUMMARY.md`. Write `.sleuth/HANDOFF.md`.

@@ -35,7 +35,7 @@ node scripts/verify-commands.mjs /path/to/target-repo
 
 Keep findings with a fix payload (`codingAgentPrompt`, `suggestedFix`, or design before→after); others → **skipped** (`"no concrete fix payload"`). Sort: `critical` → `high` → `medium` → `low`. Run each baseline-green verify command once; pre-existing failures are not charged to the fixer.
 
-Flags: `--review` (show diff, wait for OK), `--severity <min>`, `--only <id>`. → `references/fixing.md` Steps 1–2.
+Flags: `--review` (show diff, wait for OK), `--severity <min>`, `--only <id>[,<id>…]`. → `references/fixing.md` Steps 1–2.
 
 ## Phase 2 — Heal loop (per finding, severity order)
 
