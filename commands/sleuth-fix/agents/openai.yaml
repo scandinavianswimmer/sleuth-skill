@@ -1,0 +1,6 @@
+interface:
+  display_name: "Sleuth Fix"
+  short_description: "Applies + verifies fixes for prior findings on a reversible git safety branch — the red→green heal loop."
+  brand_color: "#1f6feb"
+policy:
+  allow_implicit_invocation: true
