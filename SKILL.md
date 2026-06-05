@@ -5,8 +5,8 @@ description: Master entry for Sleuth — test/QA/beta-test/security-check a runn
 
 # Sleuth — Master Router
 
-Drive a running app like a developer and its real ICP users, find what breaks,
-and return fix-ready developer briefs with regression memory.
+Drive a running app as a developer and ICP users, find what breaks,
+and return fix-ready briefs with regression memory.
 
 **Inputs:** path to the app's repo + the URL it's running at (default `http://localhost:3000`).
 

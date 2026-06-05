@@ -31,4 +31,4 @@ for d in "$REPO"/commands/*/; do
 done
 
 echo ""
-echo "Done. Open Codex and run /skills — you should see: sleuth, sleuth-scan, sleuth-test, sleuth-security, sleuth-retest, sleuth-design"
+echo "Done. Open Codex and run /skills — you should see: sleuth, sleuth-scan, sleuth-test, sleuth-security, sleuth-retest, sleuth-design, sleuth-fix"
